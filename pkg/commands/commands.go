@@ -13,19 +13,17 @@ import (
 
 // NewDefaultCommand returns the default (aka root) command for kyml command.
 func NewDefaultCommand() *cobra.Command {
-	stdOut := os.Stdout
-
 	c := &cobra.Command{
 		Use:   "kyml",
 		Short: "kyml helps you to manage your Kubernetes YAML files.",
 	}
 
 	c.AddCommand(
-		cat.NewCmdCat(stdOut),
+		cat.NewCmdCat(os.Stdout),
 		edit.NewCmdEdit(),
 		test.NewCmdTest(),
-		tmpl.NewCmdTmpl(),
-		version.NewCmdVersion(stdOut),
+		tmpl.NewCmdTmpl(os.Stdin, os.Stdout),
+		version.NewCmdVersion(os.Stdout),
 	)
 
 	return c

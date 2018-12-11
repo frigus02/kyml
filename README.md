@@ -48,7 +48,6 @@ test 'expect(diff(staging, feature)).toMatchSnapshot()'
 
 ```sh
 # yaml-edit: something similar to https://github.com/mikefarah/yq
-# gucci: https://github.com/noqcks/gucci
 
 kyml cat staging/* |
     yaml-edit \
@@ -62,16 +61,10 @@ kyml cat staging/* |
         set deployment the-deployment spec.template.spec.containers[0].env[name=DEPLOYMENT_DATE].value $(date) |
     kubectl apply -f -
 
-TAG=$(git rev-parse HEAD) \
-DATE=$(date) \
 kyml cat staging/* |
-    envsubst |
-    kubectl apply -f -
-
-kyml cat staging/* |
-    gucci \
-        -s IMAGE=monopole/hello:$(git rev-parse HEAD) \
-        -s BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD) |
+    kyml tmpl \
+        -v IMAGE=monopole/hello:$(git rev-parse HEAD) \
+        -v BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD) |
     kubectl apply -f -
 
 kyml cat --deduplicate base/* overlays/staging/* | ...

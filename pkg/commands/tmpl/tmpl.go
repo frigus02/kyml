@@ -1,6 +1,11 @@
 package tmpl
 
 import (
+	"bufio"
+	"fmt"
+	"html/template"
+	"io"
+
 	"github.com/spf13/cobra"
 )
 
@@ -9,7 +14,7 @@ type tmplOptions struct {
 }
 
 // NewCmdTmpl creates a new tmpl command.
-func NewCmdTmpl() *cobra.Command {
+func NewCmdTmpl(in io.Reader, out io.Writer) *cobra.Command {
 	var o tmplOptions
 
 	cmd := &cobra.Command{
@@ -22,21 +27,42 @@ func NewCmdTmpl() *cobra.Command {
 				return err
 			}
 
-			return o.Run()
+			return o.Run(in, out)
 		},
 	}
 
-	cmd.Flags().StringToStringVarP(&o.values, "output", "o", nil, "Key-value pair, which should be replaced in the YAML files")
+	cmd.Flags().StringToStringVarP(&o.values, "value", "v", nil, "Key-value pair, which should be replaced in the YAML files")
 
 	return cmd
 }
 
 // Validate validates tmpl command.
 func (o *tmplOptions) Validate(args []string) error {
+	if len(args) != 0 {
+		return fmt.Errorf("unknown argument")
+	}
+
 	return nil
 }
 
 // Run runs tmpl command.
-func (o *tmplOptions) Run() error {
-	return nil
+func (o *tmplOptions) Run(in io.Reader, out io.Writer) error {
+	scanner := bufio.NewScanner(in)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		tmpl, err := template.New("").Parse(line)
+		if err != nil {
+			return err
+		}
+
+		err = tmpl.Execute(out, o.values)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(out)
+	}
+
+	return scanner.Err()
 }
