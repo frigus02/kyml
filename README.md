@@ -47,17 +47,16 @@ test 'expect(diff(staging, feature)).toMatchSnapshot()'
 ```
 
 ```sh
-# yaml-cat: https://www.npmjs.com/package/yaml-cat
 # yaml-edit: something similar to https://github.com/mikefarah/yq
 # gucci: https://github.com/noqcks/gucci
 
-yaml-cat staging |
+kyml cat staging/* |
     yaml-edit \
         set deployment.yml spec.template.spec.containers[0].image monopole/hello:$(git rev-parse HEAD) \
         set deployment.yml spec.template.spec.containers[0].env[name=DEPLOYMENT_DATE].value $(date) |
     kubectl apply -f -
 
-yaml-cat staging |
+kyml cat staging/* |
     k8s-edit \
         set deployment the-deployment spec.template.spec.containers[0].image monopole/hello:$(git rev-parse HEAD) \
         set deployment the-deployment spec.template.spec.containers[0].env[name=DEPLOYMENT_DATE].value $(date) |
@@ -65,15 +64,20 @@ yaml-cat staging |
 
 TAG=$(git rev-parse HEAD) \
 DATE=$(date) \
-yaml-cat staging |
+kyml cat staging/* |
     envsubst |
     kubectl apply -f -
 
-yaml-cat staging |
+kyml cat staging/* |
     gucci \
         -s IMAGE=monopole/hello:$(git rev-parse HEAD) \
         -s BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD) |
     kubectl apply -f -
 
-yaml-cat --deduplicate-files-by-name base/* overlays/staging/* | ...
+kyml cat --deduplicate base/* overlays/staging/* | ...
+```
+
+```sh
+# Use https://goreleaser.com/ ?!
+go install -ldflags "-X github.com/frigus02/kyml/pkg/commands/version.version=0.0.1 -X github.com/frigus02/kyml/pkg/commands/version.commit=$(git rev-parse HEAD) -X github.com/frigus02/kyml/pkg/commands/version.date=$(date)"
 ```
