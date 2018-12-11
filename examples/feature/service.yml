@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: the-service-BRANCH_NAME
+  labels:
+    app: hello
+    branch: BRANCH_NAME
+spec:
+  selector:
+    deployment: hello
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: the-service
+  labels:
+    app: hello
+spec:
+  selector:
+    deployment: hello
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: the-deployment
+  labels:
+    app: hello
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+        - name: the-container
+          image: monopole/hello
+          command: ["/hello", "--port=8080"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GREETING
+              value: hello
+            - name: DEPLOYMENT_DATE
+              value: now
+            - name: DB_CONNECTION_STRING
+              value: "User ID=root;Host=the-test-db-server;Port=5432;Database=the-db;"
+            - name: DEBUG
+              value: "true"

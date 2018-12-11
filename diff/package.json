@@ -1,0 +1,14 @@
+{
+  "name": "diff",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "jest --testMatch \"**/*.js\""
+  },
+  "dependencies": {
+    "jest": "^23.6.0",
+    "snapshot-diff": "^0.4.1"
+  }
+}
