@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"os"
 
 	"github.com/spf13/cobra"
 )
 
 type tmplOptions struct {
-	values map[string]string
+	values  map[string]string
+	envVars []string
 }
 
 // NewCmdTmpl creates a new tmpl command.
@@ -32,6 +34,7 @@ func NewCmdTmpl(in io.Reader, out io.Writer) *cobra.Command {
 	}
 
 	cmd.Flags().StringToStringVarP(&o.values, "value", "v", nil, "Key-value pair, which should be replaced in the YAML files")
+	cmd.Flags().StringArrayVarP(&o.envVars, "env", "e", nil, "Environment variable, which should be replaced in the YAML files")
 
 	return cmd
 }
@@ -47,6 +50,14 @@ func (o *tmplOptions) Validate(args []string) error {
 
 // Run runs tmpl command.
 func (o *tmplOptions) Run(in io.Reader, out io.Writer) error {
+	vars := make(map[string]string)
+	for key, value := range o.values {
+		vars[key] = value
+	}
+	for _, env := range o.envVars {
+		vars[env] = os.Getenv(env)
+	}
+
 	scanner := bufio.NewScanner(in)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -56,7 +67,7 @@ func (o *tmplOptions) Run(in io.Reader, out io.Writer) error {
 			return err
 		}
 
-		err = tmpl.Execute(out, o.values)
+		err = tmpl.Execute(out, vars)
 		if err != nil {
 			return err
 		}

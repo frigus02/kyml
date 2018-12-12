@@ -2,7 +2,9 @@ package tmpl
 
 import (
 	"bytes"
+	"fmt"
 	"io"
+	"os"
 	"strings"
 	"testing"
 )
@@ -42,6 +44,11 @@ func Test_tmplOptions_Validate(t *testing.T) {
 }
 
 func Test_tmplOptions_Run(t *testing.T) {
+	secret := "123"
+	if err := os.Setenv("SECRET", secret); err != nil {
+		t.Fatal(err)
+	}
+
 	type args struct {
 		in io.Reader
 	}
@@ -59,11 +66,12 @@ func Test_tmplOptions_Run(t *testing.T) {
 					"branch": "my-feature",
 					"tag":    "latest",
 				},
+				envVars: []string{"SECRET"},
 			},
 			args: args{
-				strings.NewReader("label: {{.branch}}\nimage: hello:{{.tag}}\n"),
+				strings.NewReader("label: {{.branch}}\nimage: hello:{{.tag}}\nsecret: {{.SECRET}}\n"),
 			},
-			wantOut: "label: my-feature\nimage: hello:latest\n",
+			wantOut: fmt.Sprintf("label: my-feature\nimage: hello:latest\nsecret: %s\n", secret),
 			wantErr: false,
 		},
 		{
