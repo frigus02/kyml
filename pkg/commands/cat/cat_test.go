@@ -47,45 +47,7 @@ func Test_catOptions_Validate(t *testing.T) {
 	}
 }
 
-var allTestDataManifests = `---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: the-deployment
-spec:
-  replicas: 1
-  template:
-    spec:
-      containers:
-      - image: monopole/hello
-        name: the-container
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: the-service
-spec:
-  ports:
-  - port: 80
-    protocol: TCP
-  selector:
-    deployment: hello
-  type: LoadBalancer
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: the-deployment
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - image: monopole/hello
-        name: the-container
-`
-
-var prodTestDataManifests = `---
+var testDataManifests = `---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -126,22 +88,8 @@ func Test_catOptions_Run(t *testing.T) {
 					"testdata/base/service.yml",
 					"testdata/overlay-prod/deployment.yml",
 				},
-				deduplicate: false,
 			},
-			wantOut: allTestDataManifests,
-			wantErr: false,
-		},
-		{
-			name: "deduplicate, using file specified last",
-			o: &catOptions{
-				files: []string{
-					"testdata/base/deployment.yml",
-					"testdata/base/service.yml",
-					"testdata/overlay-prod/deployment.yml",
-				},
-				deduplicate: true,
-			},
-			wantOut: prodTestDataManifests,
+			wantOut: testDataManifests,
 			wantErr: false,
 		},
 		{
@@ -150,7 +98,6 @@ func Test_catOptions_Run(t *testing.T) {
 				files: []string{
 					"testdata/something.yml",
 				},
-				deduplicate: true,
 			},
 			wantOut: "",
 			wantErr: true,

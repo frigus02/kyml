@@ -3,17 +3,13 @@ package cat
 import (
 	"fmt"
 	"io"
-	"os"
 
-	"github.com/frigus02/kyml/pkg/k8syaml"
+	"github.com/frigus02/kyml/pkg/cat"
 	"github.com/spf13/cobra"
-
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type catOptions struct {
-	files       []string
-	deduplicate bool
+	files []string
 }
 
 // NewCmdCat creates a new cat command.
@@ -34,8 +30,6 @@ func NewCmdCat(out io.Writer) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&o.deduplicate, "deduplicate", "d", false, "If specified, deduplicate YAML documents. This means when multiple YAML documents have the same apiVersion, kind, namespace and name, only the document specified last will be printed.")
-
 	return cmd
 }
 
@@ -51,45 +45,5 @@ func (o *catOptions) Validate(args []string) error {
 
 // Run runs cat command.
 func (o *catOptions) Run(out io.Writer) error {
-	var documents []unstructured.Unstructured
-	for _, filename := range o.files {
-		file, err := os.Open(filename)
-		if err != nil {
-			return err
-		}
-
-		docsInFile, err := k8syaml.Decode(file)
-		if err != nil {
-			return err
-		}
-
-		err = file.Close()
-		if err != nil {
-			return err
-		}
-
-		if o.deduplicate {
-			for _, doc := range docsInFile {
-				found := false
-				for i, seenDoc := range documents {
-					if doc.GetAPIVersion() == seenDoc.GetAPIVersion() &&
-						doc.GetKind() == seenDoc.GetKind() &&
-						doc.GetNamespace() == seenDoc.GetNamespace() &&
-						doc.GetName() == doc.GetName() {
-						documents[i] = doc
-						found = true
-						break
-					}
-				}
-
-				if !found {
-					documents = append(documents, doc)
-				}
-			}
-		} else {
-			documents = append(documents, docsInFile...)
-		}
-	}
-
-	return k8syaml.Encode(out, documents)
+	return cat.Cat(out, o.files)
 }
