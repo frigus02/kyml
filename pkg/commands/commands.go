@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/frigus02/kyml/pkg/commands/cat"
-	"github.com/frigus02/kyml/pkg/commands/edit"
 	"github.com/frigus02/kyml/pkg/commands/test"
 	"github.com/frigus02/kyml/pkg/commands/tmpl"
 	"github.com/frigus02/kyml/pkg/commands/version"
@@ -20,7 +19,6 @@ func NewDefaultCommand() *cobra.Command {
 
 	c.AddCommand(
 		cat.NewCmdCat(os.Stdout),
-		edit.NewCmdEdit(),
 		test.NewCmdTest(),
 		tmpl.NewCmdTmpl(os.Stdin, os.Stdout),
 		version.NewCmdVersion(os.Stdout),

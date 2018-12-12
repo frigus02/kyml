@@ -3,10 +3,13 @@ package cat
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
+	"github.com/frigus02/kyml/pkg/k8syaml"
 	"github.com/spf13/cobra"
+
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type catOptions struct {
@@ -69,14 +72,25 @@ func (o *catOptions) Run(out io.Writer) error {
 		files = o.files
 	}
 
-	for _, file := range files {
-		bytes, err := ioutil.ReadFile(file)
+	var documents []unstructured.Unstructured
+	for _, filename := range files {
+		file, err := os.Open(filename)
 		if err != nil {
 			return err
 		}
 
-		fmt.Fprintf(out, "---\n%s", bytes)
+		docsInFile, err := k8syaml.Decode(file)
+		if err != nil {
+			return err
+		}
+
+		err = file.Close()
+		if err != nil {
+			return err
+		}
+
+		documents = append(documents, docsInFile...)
 	}
 
-	return nil
+	return k8syaml.Encode(out, documents)
 }
