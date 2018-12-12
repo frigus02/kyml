@@ -57,20 +57,20 @@ spec:
   template:
     spec:
       containers:
-        - name: the-container
-          image: monopole/hello
+      - image: monopole/hello
+        name: the-container
 ---
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: the-service
 spec:
+  ports:
+  - port: 80
+    protocol: TCP
   selector:
     deployment: hello
   type: LoadBalancer
-  ports:
-    - protocol: TCP
-      port: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -81,8 +81,8 @@ spec:
   template:
     spec:
       containers:
-        - name: the-container
-          image: monopole/hello
+      - image: monopole/hello
+        name: the-container
 `
 
 var prodTestDataManifests = `---
@@ -95,20 +95,20 @@ spec:
   template:
     spec:
       containers:
-        - name: the-container
-          image: monopole/hello
+      - image: monopole/hello
+        name: the-container
 ---
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: the-service
 spec:
+  ports:
+  - port: 80
+    protocol: TCP
   selector:
     deployment: hello
   type: LoadBalancer
-  ports:
-    - protocol: TCP
-      port: 80
 `
 
 func Test_catOptions_Run(t *testing.T) {

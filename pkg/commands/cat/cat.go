@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 
 	"github.com/frigus02/kyml/pkg/k8syaml"
 	"github.com/spf13/cobra"
@@ -35,7 +34,7 @@ func NewCmdCat(out io.Writer) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&o.deduplicate, "deduplicate", "d", false, "If specified, deduplicate files by name. This means when multiple files have the same name, only the file specified last will be printed.")
+	cmd.Flags().BoolVarP(&o.deduplicate, "deduplicate", "d", false, "If specified, deduplicate YAML documents. This means when multiple YAML documents have the same apiVersion, kind, namespace and name, only the document specified last will be printed.")
 
 	return cmd
 }
@@ -52,28 +51,8 @@ func (o *catOptions) Validate(args []string) error {
 
 // Run runs cat command.
 func (o *catOptions) Run(out io.Writer) error {
-	var files []string
-	if o.deduplicate {
-		for _, file := range o.files {
-			found := false
-			for i, seenFile := range files {
-				if filepath.Base(file) == filepath.Base(seenFile) {
-					files[i] = file
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				files = append(files, file)
-			}
-		}
-	} else {
-		files = o.files
-	}
-
 	var documents []unstructured.Unstructured
-	for _, filename := range files {
+	for _, filename := range o.files {
 		file, err := os.Open(filename)
 		if err != nil {
 			return err
@@ -89,7 +68,27 @@ func (o *catOptions) Run(out io.Writer) error {
 			return err
 		}
 
-		documents = append(documents, docsInFile...)
+		if o.deduplicate {
+			for _, doc := range docsInFile {
+				found := false
+				for i, seenDoc := range documents {
+					if doc.GetAPIVersion() == seenDoc.GetAPIVersion() &&
+						doc.GetKind() == seenDoc.GetKind() &&
+						doc.GetNamespace() == seenDoc.GetNamespace() &&
+						doc.GetName() == doc.GetName() {
+						documents[i] = doc
+						found = true
+						break
+					}
+				}
+
+				if !found {
+					documents = append(documents, doc)
+				}
+			}
+		} else {
+			documents = append(documents, docsInFile...)
+		}
 	}
 
 	return k8syaml.Encode(out, documents)
