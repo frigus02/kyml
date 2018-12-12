@@ -47,20 +47,6 @@ test 'expect(diff(staging, feature)).toMatchSnapshot()'
 ```
 
 ```sh
-# yaml-edit: something similar to https://github.com/mikefarah/yq
-
-kyml cat staging/* |
-    yaml-edit \
-        set deployment.yml spec.template.spec.containers[0].image monopole/hello:$(git rev-parse HEAD) \
-        set deployment.yml spec.template.spec.containers[0].env[name=DEPLOYMENT_DATE].value $(date) |
-    kubectl apply -f -
-
-kyml cat staging/* |
-    k8s-edit \
-        set deployment the-deployment spec.template.spec.containers[0].image monopole/hello:$(git rev-parse HEAD) \
-        set deployment the-deployment spec.template.spec.containers[0].env[name=DEPLOYMENT_DATE].value $(date) |
-    kubectl apply -f -
-
 kyml cat staging/* |
     kyml tmpl \
         -v IMAGE=monopole/hello:$(git rev-parse HEAD) \
