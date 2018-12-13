@@ -42,7 +42,6 @@ A way of managing Kubernetes YAML files.
 ```
 
 ```sh
-# Currently possible
 kyml cat staging/* |
     kyml tmpl \
         -e SECRET \
@@ -52,21 +51,10 @@ kyml cat staging/* |
 
 kyml cat base/* overlays/staging/* | ...
 
-kyml test \
-    --name1 staging \
-    --file1 staging/deployment.yaml \
-    --file1 staging/ingress.yaml \
-    --file1 staging/service.yaml \
-    --name2 production \
-    --file2 production/deployment.yaml \
-    --file2 production/ingress.yaml \
-    --file2 production/service.yaml
-
-# Goal
 kyml cat staging/*.yml |
     kyml test \
-        --envname-stdin staging \
-        --envname-files feature \
+        --name-stdin staging \
+        --name-files feature \
         --snapshot-file staging/kyml-snapshot-vs-feature.diff \
         feature/* |
     kyml tmpl \

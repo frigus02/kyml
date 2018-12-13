@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewDefaultCommand returns the default (aka root) command for kyml command.
+// NewDefaultCommand returns the default (aka root) command for kyml.
 func NewDefaultCommand() *cobra.Command {
 	osFs := fs.NewOSFilesystem()
 
@@ -22,7 +22,7 @@ func NewDefaultCommand() *cobra.Command {
 
 	c.AddCommand(
 		cat.NewCmdCat(os.Stdout, osFs),
-		test.NewCmdTest(os.Stdout, osFs),
+		test.NewCmdTest(os.Stdin, os.Stdout, osFs),
 		tmpl.NewCmdTmpl(os.Stdin, os.Stdout),
 		version.NewCmdVersion(os.Stdout),
 	)

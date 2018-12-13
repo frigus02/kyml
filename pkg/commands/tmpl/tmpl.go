@@ -1,12 +1,13 @@
 package tmpl
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
-	"html/template"
 	"io"
 	"os"
+	"text/template"
 
+	"github.com/frigus02/kyml/pkg/cat"
 	"github.com/spf13/cobra"
 )
 
@@ -58,22 +59,20 @@ func (o *tmplOptions) Run(in io.Reader, out io.Writer) error {
 		vars[env] = os.Getenv(env)
 	}
 
-	scanner := bufio.NewScanner(in)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		tmpl, err := template.New("").Parse(line)
-		if err != nil {
-			return err
-		}
-
-		err = tmpl.Execute(out, vars)
-		if err != nil {
-			return err
-		}
-
-		fmt.Fprintln(out)
+	var buffer bytes.Buffer
+	if err := cat.Stream(&buffer, in); err != nil {
+		return err
 	}
 
-	return scanner.Err()
+	tmpl, err := template.New("").Parse(buffer.String())
+	if err != nil {
+		return err
+	}
+
+	if err = tmpl.Execute(out, vars); err != nil {
+		return err
+	}
+
+	fmt.Fprint(out)
+	return nil
 }

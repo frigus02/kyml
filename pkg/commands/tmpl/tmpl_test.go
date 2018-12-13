@@ -2,7 +2,6 @@ package tmpl
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -43,9 +42,36 @@ func Test_tmplOptions_Validate(t *testing.T) {
 	}
 }
 
+func mustOpenFile(t *testing.T, filename string) io.Reader {
+	file, err := os.Open(filename)
+	if err != nil {
+		t.Fatalf("error opening testdata: %v", err)
+	}
+
+	return file
+}
+
+var templatedDeployment = `---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    branch: 'my-feature'
+  name: the-deployment
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - env:
+        - name: SECRET
+          value: '123'
+        image: monopole/hello:latest
+        name: the-container
+`
+
 func Test_tmplOptions_Run(t *testing.T) {
-	secret := "123"
-	if err := os.Setenv("SECRET", secret); err != nil {
+	if err := os.Setenv("SECRET", "123"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -69,9 +95,9 @@ func Test_tmplOptions_Run(t *testing.T) {
 				envVars: []string{"SECRET"},
 			},
 			args: args{
-				strings.NewReader("label: {{.branch}}\nimage: hello:{{.tag}}\nsecret: {{.SECRET}}\n"),
+				in: mustOpenFile(t, "testdata/deployment.yml"),
 			},
-			wantOut: fmt.Sprintf("label: my-feature\nimage: hello:latest\nsecret: %s\n", secret),
+			wantOut: templatedDeployment,
 			wantErr: false,
 		},
 		{
@@ -83,7 +109,7 @@ func Test_tmplOptions_Run(t *testing.T) {
 				},
 			},
 			args: args{
-				strings.NewReader("label: {{.branch\nimage: hello:{{.tag}}\n"),
+				in: strings.NewReader("label: {{.branch\nimage: hello:{{.tag}}\n"),
 			},
 			wantOut: "",
 			wantErr: true,

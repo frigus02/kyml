@@ -19,7 +19,7 @@ func Decode(in io.Reader) ([]unstructured.Unstructured, error) {
 	for err == nil || isEmptyYamlError(err) {
 		var out unstructured.Unstructured
 		err = decoder.Decode(&out)
-		if err == nil {
+		if err == nil && out.Object != nil {
 			result = append(result, out)
 		}
 	}

@@ -37,6 +37,7 @@ func Test_catOptions_Validate(t *testing.T) {
 			o := &catOptions{}
 			if err := o.Validate(tt.args.args); (err != nil) != tt.wantErr {
 				t.Errorf("catOptions.Validate() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 			if !reflect.DeepEqual(o.files, tt.wantFiles) {
 				t.Errorf("catOptions.files = %v, want %v", o.files, tt.wantFiles)
