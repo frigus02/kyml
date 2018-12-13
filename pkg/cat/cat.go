@@ -2,8 +2,8 @@ package cat
 
 import (
 	"io"
-	"os"
 
+	"github.com/frigus02/kyml/pkg/fs"
 	"github.com/frigus02/kyml/pkg/k8syaml"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -12,10 +12,10 @@ import (
 // Cat prints YAML documents in the specified files and prints them one after
 // another in the specified writer. If a YAML document has the same apiVersion,
 // kind, namespace and name as a previous one it replaces it in the output.
-func Cat(out io.Writer, files []string) error {
+func Cat(out io.Writer, files []string, fs fs.Filesystem) error {
 	var documents []unstructured.Unstructured
 	for _, filename := range files {
-		file, err := os.Open(filename)
+		file, err := fs.Open(filename)
 		if err != nil {
 			return err
 		}

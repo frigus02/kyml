@@ -3,6 +3,8 @@ package cat
 import (
 	"bytes"
 	"testing"
+
+	"github.com/frigus02/kyml/pkg/fs"
 )
 
 var testDataManifests = `---
@@ -32,6 +34,16 @@ spec:
 `
 
 func TestCat(t *testing.T) {
+	fs, err := fs.NewFakeFilesystemFromDisk(
+		"testdata/base/deployment.yml",
+		"testdata/base/service.yml",
+		"testdata/overlay-prod/deployment.yml",
+	)
+	if err != nil {
+		t.Errorf("error reading testdata: %v", err)
+		return
+	}
+
 	type args struct {
 		files []string
 	}
@@ -67,7 +79,7 @@ func TestCat(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			out := &bytes.Buffer{}
-			if err := Cat(out, tt.args.files); (err != nil) != tt.wantErr {
+			if err := Cat(out, tt.args.files, fs); (err != nil) != tt.wantErr {
 				t.Errorf("Cat() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

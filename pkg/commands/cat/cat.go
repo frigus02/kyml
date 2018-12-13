@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/frigus02/kyml/pkg/cat"
+	"github.com/frigus02/kyml/pkg/fs"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +14,7 @@ type catOptions struct {
 }
 
 // NewCmdCat creates a new cat command.
-func NewCmdCat(out io.Writer) *cobra.Command {
+func NewCmdCat(out io.Writer, fs fs.Filesystem) *cobra.Command {
 	var o catOptions
 
 	cmd := &cobra.Command{
@@ -26,7 +27,7 @@ func NewCmdCat(out io.Writer) *cobra.Command {
 				return err
 			}
 
-			return o.Run(out)
+			return o.Run(out, fs)
 		},
 	}
 
@@ -44,6 +45,6 @@ func (o *catOptions) Validate(args []string) error {
 }
 
 // Run runs cat command.
-func (o *catOptions) Run(out io.Writer) error {
-	return cat.Cat(out, o.files)
+func (o *catOptions) Run(out io.Writer, fs fs.Filesystem) error {
+	return cat.Cat(out, o.files, fs)
 }
