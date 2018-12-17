@@ -19,7 +19,22 @@ func NewCmdCat(out io.Writer, fs fs.Filesystem) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "cat <file>...",
-		Short: "Concatenate Kubernetes YAML files to standard output.",
+		Short: "Concatenate Kubernetes YAML files to stdout.",
+		Long: `Read and concatenate YAML documents from all files in the order they are specified. Then print them to stdout.
+
+YAML documents are changed in the following ways:
+- Documents are parsed as Kubernetes YAML documents and then formatted. This will change indentation and ordering of properties.
+- Documents are deduplicated. If multiple YAML documents refer to the same Kubernetes resource, only the last one will appear in the result.
+
+The result of this command can be piped into other commands like "kyml test" or "kubectl apply".`,
+		Example: `  # Cat one folder
+  kyml cat production/*
+
+  # Merge YAML documents from two folders
+  kyml cat base/* overlay-production/*
+
+  # Specify files individually
+  kyml cat prod/deployment.yml prod/service.yml prod/ingress.yml`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := o.Validate(args)
 			if err != nil {

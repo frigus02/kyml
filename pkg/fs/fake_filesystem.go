@@ -45,14 +45,6 @@ func (fs *fakeFilesystem) Open(name string) (File, error) {
 	return nil, os.ErrNotExist
 }
 
-func (fs *fakeFilesystem) Stat(name string) (os.FileInfo, error) {
-	if data, ok := fs.files[name]; ok {
-		return &fakeFileInfo{name, int64(len(data)), fs.fileModes[name]}, nil
-	}
-
-	return nil, os.ErrNotExist
-}
-
 func (fs *fakeFilesystem) ReadFile(filename string) ([]byte, error) {
 	if data, ok := fs.files[filename]; ok {
 		dataCopy := make([]byte, len(data))

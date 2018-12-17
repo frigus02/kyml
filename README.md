@@ -42,25 +42,24 @@ A way of managing Kubernetes YAML files.
 ```
 
 ```sh
-kyml cat staging/* |
+kyml cat feature/* |
     kyml tmpl \
-        -e SECRET \
-        -v IMAGE=monopole/hello:$(git rev-parse HEAD) \
-        -v BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD) |
+        -v Greeting=hello \
+        -v ImageTag=$(git rev-parse --short HEAD) \
+        -e TRAVIS_BRANCH |
     kubectl apply -f -
 
-kyml cat base/* overlays/staging/* | ...
+kyml cat base/* overlays/production/* | ...
 
-kyml cat staging/*.yml |
-    kyml test \
-        --name-stdin staging \
-        --name-files feature \
-        --snapshot-file staging/kyml-snapshot-vs-feature.diff \
-        feature/* |
+kyml cat production/*.yml |
+    kyml test staging/* \
+        --name-main production \
+        --name-comparison staging \
+        --snapshot-file tests/snapshot-production-vs-staging.diff |
     kyml tmpl \
-        -e SECRET \
-        -v IMAGE=monopole/hello:$(git rev-parse HEAD) \
-        -v BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD) |
+        -v Greeting=hello \
+        -v ImageTag=$(git rev-parse --short HEAD) \
+        -e TRAVIS_BRANCH |
     kubectl apply -f -
 ```
 

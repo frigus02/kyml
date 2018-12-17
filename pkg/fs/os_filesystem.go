@@ -21,10 +21,6 @@ func (fs osFilesystem) Open(name string) (File, error) {
 	return osFile{file}, nil
 }
 
-func (fs osFilesystem) Stat(name string) (os.FileInfo, error) {
-	return os.Stat(name)
-}
-
 func (fs osFilesystem) ReadFile(filename string) ([]byte, error) {
 	return ioutil.ReadFile(filename)
 }

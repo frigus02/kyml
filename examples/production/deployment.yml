@@ -13,14 +13,12 @@ spec:
     spec:
       containers:
         - name: the-container
-          image: monopole/hello
+          image: monopole/hello:{{.ImageTag}}
           command: ["/hello", "--port=8080"]
           ports:
             - containerPort: 8080
           env:
             - name: GREETING
-              value: hello
-            - name: DEPLOYMENT_DATE
-              value: now
+              value: "{{.Greeting}}"
             - name: DB_CONNECTION_STRING
               value: "User ID=root;Host=the-db-server;Port=5432;Database=the-db;"

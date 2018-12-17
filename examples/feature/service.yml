@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: the-service-BRANCH_NAME
+  name: the-service-{{.TRAVIS_BRANCH}}
   labels:
     app: hello
-    branch: BRANCH_NAME
+    branch: "{{.TRAVIS_BRANCH}}"
 spec:
   selector:
     deployment: hello
