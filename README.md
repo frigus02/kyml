@@ -66,5 +66,5 @@ kyml cat staging/*.yml |
 
 ```sh
 # Use https://goreleaser.com/ ?!
-go install -ldflags "-X github.com/frigus02/kyml/pkg/commands/version.version=0.0.1 -X github.com/frigus02/kyml/pkg/commands/version.commit=$(git rev-parse HEAD) -X github.com/frigus02/kyml/pkg/commands/version.date=$(date)"
+go install -ldflags "-X github.com/frigus02/kyml/pkg/commands.version=0.0.1"
 ```
