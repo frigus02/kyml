@@ -22,7 +22,7 @@ func NewCmdTmpl(in io.Reader, out io.Writer) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "tmpl",
-		Short: "Template Kubernetes YAML files.",
+		Short: "Template Kubernetes YAML files",
 		Long: `Template Kubernetes YAML files. Data is read from stdin, executed with the specified context, and printed to stdout.
 
 Templates use the go template syntax (https://golang.org/pkg/text/template/). You can add data to the template context using the options "--value" and "--env". Please note that keys (including environment variable names) are case sensitive in the template.

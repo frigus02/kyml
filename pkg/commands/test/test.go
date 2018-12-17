@@ -26,7 +26,7 @@ func NewCmdTest(in io.Reader, out io.Writer, fs fs.Filesystem) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "test <file>...",
-		Short: "Run a snapshot test on the diff between Kubernetes YAML files of two environments.",
+		Short: "Run a snapshot test on the diff between Kubernetes YAML files of two environments",
 		Long: `Run a snapshot test on the diff between Kubernetes YAML files of two environments.
 
 Integrate this in your CI builds to make sure your environments don't accidentially drift apart.

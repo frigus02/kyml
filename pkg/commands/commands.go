@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/frigus02/kyml/pkg/commands/cat"
+	"github.com/frigus02/kyml/pkg/commands/completion"
 	"github.com/frigus02/kyml/pkg/commands/test"
 	"github.com/frigus02/kyml/pkg/commands/tmpl"
 	"github.com/frigus02/kyml/pkg/fs"
@@ -25,6 +26,7 @@ func NewRootCommand() *cobra.Command {
 
 	c.AddCommand(
 		cat.NewCmdCat(os.Stdout, osFs),
+		completion.NewCompletionCommand(os.Stdout, c),
 		test.NewCmdTest(os.Stdin, os.Stdout, osFs),
 		tmpl.NewCmdTmpl(os.Stdin, os.Stdout),
 	)

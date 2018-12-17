@@ -19,7 +19,7 @@ func NewCmdCat(out io.Writer, fs fs.Filesystem) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "cat <file>...",
-		Short: "Concatenate Kubernetes YAML files to stdout.",
+		Short: "Concatenate Kubernetes YAML files to stdout",
 		Long: `Read and concatenate YAML documents from all files in the order they are specified. Then print them to stdout.
 
 YAML documents are changed in the following ways:
