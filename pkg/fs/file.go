@@ -1,10 +1,8 @@
 package fs
 
-import (
-	"io"
-)
+import "io"
 
-// File is an interface abstraction for os.File.
+// File is an interface abstraction for `os.File`.
 type File interface {
 	io.ReadCloser
 }

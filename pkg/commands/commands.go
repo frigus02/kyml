@@ -11,13 +11,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewDefaultCommand returns the default (aka root) command for kyml.
-func NewDefaultCommand() *cobra.Command {
+// NewRootCommand returns the root command for kyml.
+func NewRootCommand() *cobra.Command {
 	osFs := fs.NewOSFilesystem()
 
 	c := &cobra.Command{
-		Use:   "kyml",
-		Short: "kyml helps you to manage your Kubernetes YAML files.",
+		Use:          "kyml",
+		Short:        "kyml helps you to manage your Kubernetes YAML files.",
+		SilenceUsage: true,
 	}
 
 	c.AddCommand(

@@ -21,9 +21,8 @@ func NewCmdTmpl(in io.Reader, out io.Writer) *cobra.Command {
 	var o tmplOptions
 
 	cmd := &cobra.Command{
-		Use:          "tmpl",
-		Short:        "Template Kubernetes YAML files. File is read from stdin, executed with the specified values, and printed to stdout.",
-		SilenceUsage: true,
+		Use:   "tmpl",
+		Short: "Template Kubernetes YAML files. File is read from stdin, executed with the specified values, and printed to stdout.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := o.Validate(args)
 			if err != nil {

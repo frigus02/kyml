@@ -24,9 +24,8 @@ func NewCmdTest(in io.Reader, out io.Writer, fs fs.Filesystem) *cobra.Command {
 	var o testOptions
 
 	cmd := &cobra.Command{
-		Use:          "test <FILE>...",
-		Short:        "Run a snapshot test for a diff between the specified environments.",
-		SilenceUsage: true,
+		Use:   "test <file>...",
+		Short: "Run a snapshot test for a diff between the specified environments.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := o.Validate(args)
 			if err != nil {

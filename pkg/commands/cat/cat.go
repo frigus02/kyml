@@ -18,9 +18,8 @@ func NewCmdCat(out io.Writer, fs fs.Filesystem) *cobra.Command {
 	var o catOptions
 
 	cmd := &cobra.Command{
-		Use:          "cat <FILE>...",
-		Short:        "Concatenate Kubernetes YAML files to standard output.",
-		SilenceUsage: true,
+		Use:   "cat <file>...",
+		Short: "Concatenate Kubernetes YAML files to standard output.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := o.Validate(args)
 			if err != nil {
