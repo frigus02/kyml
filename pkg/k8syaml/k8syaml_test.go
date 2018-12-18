@@ -19,10 +19,10 @@ metadata:
 ---
 ---
 apiVersion: v1
-kind:Service
+kind: Service
 
 metadata:
-    name: the-service
+  name: the-service
   namespace: the-namespace
 
 spec:

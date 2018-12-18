@@ -5,51 +5,11 @@ import (
 	"io"
 	"io/ioutil"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/frigus02/kyml/pkg/fs"
 )
-
-func Test_testOptions_Validate(t *testing.T) {
-	type args struct {
-		args []string
-	}
-	tests := []struct {
-		name      string
-		args      args
-		wantErr   bool
-		wantFiles []string
-	}{
-		{
-			name: "error if no args",
-			args: args{
-				args: []string{},
-			},
-			wantErr:   true,
-			wantFiles: nil,
-		},
-		{
-			name: "files set to args",
-			args: args{
-				args: []string{"foo", "bar", "baz"},
-			},
-			wantErr:   false,
-			wantFiles: []string{"foo", "bar", "baz"},
-		},
-	}
-	for _, tt := range tests {
-		o := &testOptions{}
-		t.Run(tt.name, func(t *testing.T) {
-			if err := o.Validate(tt.args.args); (err != nil) != tt.wantErr {
-				t.Errorf("testOptions.Validate() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(o.files, tt.wantFiles) {
-				t.Errorf("catOptions.files = %v, want %v", o.files, tt.wantFiles)
-			}
-		})
-	}
-}
 
 func mustCreateFs(t *testing.T) fs.Filesystem {
 	fsWithTestdata, err := fs.NewFakeFilesystemFromDisk(
@@ -99,24 +59,66 @@ func readFileOrEmpty(filename string, fs fs.Filesystem) string {
 	return string(data)
 }
 
+func Test_testOptions_Validate(t *testing.T) {
+	type args struct {
+		args []string
+	}
+	tests := []struct {
+		name      string
+		args      args
+		wantErr   bool
+		wantFiles []string
+	}{
+		{
+			name: "error if no args",
+			args: args{
+				args: []string{},
+			},
+			wantErr:   true,
+			wantFiles: nil,
+		},
+		{
+			name: "files set to args",
+			args: args{
+				args: []string{"foo", "bar", "baz"},
+			},
+			wantErr:   false,
+			wantFiles: []string{"foo", "bar", "baz"},
+		},
+	}
+	for _, tt := range tests {
+		o := &testOptions{}
+		t.Run(tt.name, func(t *testing.T) {
+			if err := o.Validate(tt.args.args); (err != nil) != tt.wantErr {
+				t.Errorf("testOptions.Validate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(o.files, tt.wantFiles) {
+				t.Errorf("catOptions.files = %v, want %v", o.files, tt.wantFiles)
+			}
+		})
+	}
+}
+
 func Test_testOptions_Run(t *testing.T) {
 	type args struct {
 		in io.Reader
 		fs fs.Filesystem
 	}
 	tests := []struct {
-		name         string
-		o            *testOptions
-		args         args
-		wantOut      string
-		wantSnapshot string
-		wantErr      bool
+		name             string
+		o                *testOptions
+		args             args
+		wantOut          string
+		wantSnapshot     string
+		wantErr          bool
+		wantErrToContain string
 	}{
 		{
-			name: "input files don't exist --> error",
+			name: "input files don't exist",
 			o: &testOptions{
-				nameStdin:      "staging",
-				nameFiles:      "production",
+				nameMain:       "staging",
+				nameComparison: "production",
 				files:          []string{"testdata/production/dep.yml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
@@ -130,27 +132,27 @@ func Test_testOptions_Run(t *testing.T) {
 			wantErr:      true,
 		},
 		{
-			name: "snapshot file doesn't exist --> is created",
+			name: "snapshot file doesn't exist",
 			o: &testOptions{
-				nameStdin:      "staging",
-				nameFiles:      "production",
-				files:          []string{"testdata/production/deployment.yml", "testdata/production/service.yml"},
+				nameMain:       "staging",
+				nameComparison: "production",
+				files:          []string{"testdata/production/deployment.yml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
 			},
 			args: args{
-				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
+				in: mustCreateStream(t, "testdata/staging/deployment.yml"),
 				fs: mustCreateFs(t),
 			},
-			wantOut:      "---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: the-deployment\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n      - image: monopole/hello\n        name: the-container\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: the-service\nspec:\n  ports:\n  - port: 80\n    protocol: TCP\n  selector:\n    deployment: hello\n  type: LoadBalancer\n",
-			wantSnapshot: "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 3\n",
-			wantErr:      false,
+			wantOut:      "",
+			wantSnapshot: "",
+			wantErr:      true,
 		},
 		{
-			name: "snapshot diff doesn't match --> error",
+			name: "snapshot diff doesn't match",
 			o: &testOptions{
-				nameStdin:      "staging",
-				nameFiles:      "production",
+				nameMain:       "staging",
+				nameComparison: "production",
 				files:          []string{"testdata/production/deployment.yml", "testdata/production/service.yml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
@@ -159,15 +161,16 @@ func Test_testOptions_Run(t *testing.T) {
 				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
 				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 2\n"),
 			},
-			wantOut:      "--- snapshot diff\n+++ this diff\n@@ -5 +5 @@\n-+  replicas: 2\n++  replicas: 3\n",
-			wantSnapshot: "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 2\n",
-			wantErr:      true,
+			wantOut:          "",
+			wantSnapshot:     "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 2\n",
+			wantErr:          true,
+			wantErrToContain: "--- snapshot diff\n+++ this diff\n@@ -5 +5 @@\n-+  replicas: 2\n++  replicas: 3\n",
 		},
 		{
-			name: "snapshot diff doesn't match and update requested --> is updated",
+			name: "snapshot diff doesn't match and update requested",
 			o: &testOptions{
-				nameStdin:      "staging",
-				nameFiles:      "production",
+				nameMain:       "staging",
+				nameComparison: "production",
 				files:          []string{"testdata/production/deployment.yml", "testdata/production/service.yml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: true,
@@ -183,8 +186,8 @@ func Test_testOptions_Run(t *testing.T) {
 		{
 			name: "snapshot diff matches",
 			o: &testOptions{
-				nameStdin:      "staging",
-				nameFiles:      "production",
+				nameMain:       "staging",
+				nameComparison: "production",
 				files:          []string{"testdata/production/deployment.yml", "testdata/production/service.yml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
@@ -201,8 +204,13 @@ func Test_testOptions_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			out := &bytes.Buffer{}
-			if err := tt.o.Run(tt.args.in, out, tt.args.fs); (err != nil) != tt.wantErr {
+			err := tt.o.Run(tt.args.in, out, tt.args.fs)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("testOptions.Run() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err != nil && !strings.Contains(err.Error(), tt.wantErrToContain) {
+				t.Errorf("testOptions.Run() error = %v, wantErrToContain %v", err, tt.wantErrToContain)
 				return
 			}
 			if gotOut := out.String(); gotOut != tt.wantOut {
