@@ -1,36 +1,64 @@
 # kyml - Kubernetes YAML
 
-A way of managing Kubernetes YAML files.
+A CLI, which helps you to manage your Kubernetes YAML files for your application.
 
 ## Background
 
+There are many tool out there to manage Kubernetes manifests, e.g. [ksonnet](https://ksonnet.io/) or [kustomize](https://github.com/kubernetes-sigs/kustomize). They make manifests DRY by introducing other configuration files. I think at least for smaller applications that's too much and I wanted something simpler. So here is `kyml`.
+
 ### Goals
 
-- Easly readable YAML files.
+- Easily readable and understandable YAML files.
 
-  This means everything is visible in the YAML files and you don't have to jump between multiple files to see what's going on.
+  This means everything is visible in the Kubernetes YAML files themselves. You don't have to jump between multiple files to see what's going on. There is no additional configuration file for yet another tool.
 
 - Stop accidental drift of files between environments.
 
-  Production, staging or whatever environments you have should stay as similar as possible. We don't want you to accidentally forget to update one of the environments.
+  In the beginning you decide how your environments (e.g. production and staging) should look like and how they differ. After that it should be hard to only update one environment (e.g. to add another env var) but forget to update the others.
 
 - Support for dynamic values like image tag or branch name.
 
-  Some values are dynamic. E.g. you may deploy every feature branch and want to include the branch name in a label or namespace.
+  Some values are dynamic. E.g. you may deploy every feature branch and want to include the branch name in a label or namespace. A tool has to support this.
 
 ### Approach
 
-- Duplicate files for each environment.
+- Duplicate all files for each environment.
 - Lint diff between files with automated tests.
-- Provide easy to use tool to edit dynamic things like image tag or branch name in YAML files using CLI.
+- Simple templating for dynamic values.
+
+## Install
+
+TODO ...
 
 ## Usage
 
+```console
+$ kyml help
+kyml helps you to manage your Kubernetes YAML files.
+
+Usage:
+  kyml [command]
+
+Available Commands:
+  cat         Concatenate Kubernetes YAML files to stdout
+  completion  Generate completion scripts for your shell
+  help        Help about any command
+  test        Run a snapshot test on the diff between Kubernetes YAML files of two environments
+  tmpl        Template Kubernetes YAML files
+
+Flags:
+  -h, --help      help for kyml
+      --version   version for kyml
+
+Use "kyml [command] --help" for more information about a command.
 ```
-~/someApp
-├── feature
-│   ├── deployment.yaml
-│   ├── service.yaml
+
+### 1. Structure your manifests in the way you want
+
+For most of the following examples, we assume this structure:
+
+```
+manifests
 ├── staging
 │   ├── deployment.yaml
 │   ├── ingress.yaml
@@ -41,18 +69,54 @@ A way of managing Kubernetes YAML files.
     └── service.yaml
 ```
 
-```sh
-kyml cat feature/* |
-    kyml tmpl \
-        -v Greeting=hello \
-        -v ImageTag=$(git rev-parse --short HEAD) \
-        -e TRAVIS_BRANCH |
+And some of them use this one:
+
+```
+manifests
+├── base
+│   ├── ingress.yaml
+│   └── service.yaml
+└── overlays
+    ├── staging
+    │   └── deployment.yaml
+    └── production
+        └── deployment.yaml
+```
+
+You can adapt these or use anything else, that makes sense for your application.
+
+### 2. Concatenate your files
+
+In the simplest case you concatenate your files and pipe them into `kubectl apply` to deploy them. If multiple files contain the same Kubernetes resource, `kyml cat` deduplicates them. Only the last one makes it into the output.
+
+```console
+$ kyml cat manifests/production/* | kubectl apply -f -
+```
+
+```console
+$ kyml cat manifests/base/* manifests/overlays/production/* | kubectl apply -f -
+```
+
+### 3. Test that your environment don't drift apart
+
+You can add a `kyml test` to this pipeline. This will create a diff between your environments. If this diff does not match your stored snapshot, the command fails and nothing gets deployed.
+
+```console
+$ kyml cat manifests/production/* |
+    kyml test manifests/staging/* \
+        --name-main production \
+        --name-comparison staging \
+        --snapshot-file tests/snapshot-production-vs-staging.diff |
     kubectl apply -f -
+```
 
-kyml cat base/* overlays/production/* | ...
+### 4. Inject dynamic values
 
-kyml cat production/*.yml |
-    kyml test staging/* \
+Inject dynamic values using `kyml tmpl`, which supports the [go template](https://golang.org/pkg/text/template/) syntax. All values you provide on the command line will be replaced in the pipeline. For example to replace `{{.ImageTag}}` in your manifests, specify the flag `--value ImageTag=my-dynamic-tag`.
+
+```console
+$ kyml cat manifests/production/* |
+    kyml test manifests/staging/* \
         --name-main production \
         --name-comparison staging \
         --snapshot-file tests/snapshot-production-vs-staging.diff |
@@ -63,7 +127,6 @@ kyml cat production/*.yml |
     kubectl apply -f -
 ```
 
-```sh
-# Use https://goreleaser.com/ ?!
-go install -ldflags "-X github.com/frigus02/kyml/pkg/commands.version=0.0.1"
-```
+## License
+
+[MIT](LICENSE)
