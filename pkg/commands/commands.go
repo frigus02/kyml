@@ -8,7 +8,7 @@ import (
 	"github.com/frigus02/kyml/pkg/commands/test"
 	"github.com/frigus02/kyml/pkg/commands/tmpl"
 	"github.com/frigus02/kyml/pkg/fs"
-	"github.com/spf13/cobra"
+	"github.com/frigus02/cobra"
 )
 
 var version = "dev"

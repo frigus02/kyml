@@ -6,7 +6,7 @@ import (
 
 	"github.com/frigus02/kyml/pkg/cat"
 	"github.com/frigus02/kyml/pkg/fs"
-	"github.com/spf13/cobra"
+	"github.com/frigus02/cobra"
 )
 
 type catOptions struct {
