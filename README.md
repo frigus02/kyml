@@ -89,20 +89,20 @@ You can adapt these or use anything else, that makes sense for your application.
 
 In the simplest case you concatenate your files and pipe them into `kubectl apply` to deploy them. If multiple files contain the same Kubernetes resource, `kyml cat` deduplicates them. Only the last one makes it into the output.
 
-```console
-$ kyml cat manifests/production/* | kubectl apply -f -
+```sh
+kyml cat manifests/production/* | kubectl apply -f -
 ```
 
-```console
-$ kyml cat manifests/base/* manifests/overlays/production/* | kubectl apply -f -
+```sh
+kyml cat manifests/base/* manifests/overlays/production/* | kubectl apply -f -
 ```
 
 ### 3. Test that your environment don't drift apart
 
 You can add a `kyml test` to this pipeline. This will create a diff between your environments. If this diff does not match your stored snapshot, the command fails and nothing gets deployed.
 
-```console
-$ kyml cat manifests/production/* |
+```sh
+kyml cat manifests/production/* |
     kyml test manifests/staging/* \
         --name-main production \
         --name-comparison staging \
@@ -114,8 +114,8 @@ $ kyml cat manifests/production/* |
 
 Inject dynamic values using `kyml tmpl`, which supports the [go template](https://golang.org/pkg/text/template/) syntax. All values you provide on the command line will be replaced in the pipeline. For example to replace `{{.ImageTag}}` in your manifests, specify the flag `--value ImageTag=my-dynamic-tag`.
 
-```console
-$ kyml cat manifests/production/* |
+```sh
+kyml cat manifests/production/* |
     kyml test manifests/staging/* \
         --name-main production \
         --name-comparison staging \
