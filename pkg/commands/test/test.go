@@ -6,10 +6,10 @@ import (
 	"io"
 	"os"
 
+	"github.com/frigus02/cobra"
 	"github.com/frigus02/kyml/pkg/cat"
 	"github.com/frigus02/kyml/pkg/diff"
 	"github.com/frigus02/kyml/pkg/fs"
-	"github.com/frigus02/cobra"
 )
 
 type testOptions struct {
