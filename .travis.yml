@@ -1,0 +1,17 @@
+sudo: false
+language: go
+go: "1.11.x"
+install:
+  - go mod download
+script:
+  - go test ./...
+  - "./scripts/build.sh"
+deploy:
+  provider: releases
+  api_key:
+    secure: ZSrczYXriy6hVR230eZMf2qLyL9QszyeHEcxQN7KKkRRY68BNslyJG4yJAy3kERcwSRgt1UxmiPVAg+S8SuUYho397/wFNPmJXm6Fnk0JrR+zMgASwpZpuJyl0e96kOm/RlGBTzKCuPb4Cfmt3092R0z9gX71vs0wzsSolfyxw4JCVw4cETgceWTUAYFgZPk9Z1GgYdUFjrS+dizlLXHTvMGBZVKhRhmFtAc82Bcj+2+3iVoBQPZMC7eL5FQ7A/0ovbTegWT/Pj6WECJ3pfUiztxR19jBjmGv31j5CM08WOABO4xW3ZBQMVcRavvftuKspQzY65m0QMaVBM0wq48Mj7souVInIGGFuqtTOq+yMS5ZlpHzUnW6v26QGFCJQge9bq2+fHeodSXO/jWLpE+I5jnA6RgCNreTq6hiKcRzkaHEAtHP/ajou0ciPLvpDNzYro2Paz8G0nwVwgazHBsIhYmbwciLR2ECzsapicb6pycUL91H2LBKfiJloj2vIgC7UXVrdaYLODl7+gIA929ARoknpHZ4YxsucFz753v+QfcEZTbMYp4RhwrbgGHUYph0XlHD0OIj/l5RWSf7l2EUOIPR8mcGVpg26obrF5XCzQmkrccvg6hXnJqT2NhEpcxrqwoSakpzBbBKeIvgnK5eJXrWa1v864zyEaRw0ADam4=
+  file_glob: true
+  file: bin/*
+  skip_cleanup: true
+  on:
+    tags: true
