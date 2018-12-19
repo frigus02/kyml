@@ -2,12 +2,16 @@
 
 set -eo pipefail
 
-if [ "$TRAVIS_TAG" != "" ]; then
-	if [[ $TRAVIS_TAG != v* ]]; then
-		echo >&2 "TRAVIS_TAG does not start with \"v\""
-		exit 1
+if [ "$TRAVIS" = "true" ]; then
+	if [ "$TRAVIS_TAG" != "" ]; then
+		if [[ $TRAVIS_TAG != v* ]]; then
+			echo >&2 "TRAVIS_TAG is set but does not start with \"v\""
+			exit 1
+		fi
+		version="${TRAVIS_TAG:1}"
+	else
+		version="untagged"
 	fi
-	version="${TRAVIS_TAG:1}"
 else
 	version=${1:?"Version (arg 1) missing"}
 fi
