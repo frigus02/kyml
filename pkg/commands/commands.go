@@ -3,12 +3,12 @@ package commands
 import (
 	"os"
 
+	"github.com/frigus02/cobra"
 	"github.com/frigus02/kyml/pkg/commands/cat"
 	"github.com/frigus02/kyml/pkg/commands/completion"
 	"github.com/frigus02/kyml/pkg/commands/test"
 	"github.com/frigus02/kyml/pkg/commands/tmpl"
 	"github.com/frigus02/kyml/pkg/fs"
-	"github.com/frigus02/cobra"
 )
 
 var version = "dev"

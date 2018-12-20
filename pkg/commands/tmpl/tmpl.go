@@ -7,8 +7,8 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/frigus02/kyml/pkg/cat"
 	"github.com/frigus02/cobra"
+	"github.com/frigus02/kyml/pkg/cat"
 )
 
 type tmplOptions struct {
