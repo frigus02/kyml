@@ -28,3 +28,9 @@ GOARCH=amd64 GOOS=linux go build -o "bin/kyml_${version}_linux_amd64" -ldflags "
 
 echo "Build windows"
 GOARCH=amd64 GOOS=windows go build -o "bin/kyml_${version}_windows_amd64.exe" -ldflags "$ldflags"
+
+echo "Create checksums"
+(
+	cd bin/
+	sha256sum "kyml_${version}"* >checksums.txt
+)
