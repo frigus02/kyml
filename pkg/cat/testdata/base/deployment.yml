@@ -8,4 +8,4 @@ spec:
     spec:
       containers:
         - name: the-container
-          image: monopole/hello
+          image: kyml/hello

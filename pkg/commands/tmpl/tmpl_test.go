@@ -66,7 +66,7 @@ spec:
       - env:
         - name: SECRET
           value: '123'
-        image: monopole/hello:latest
+        image: kyml/hello:latest
         name: the-container
 `
 

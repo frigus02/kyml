@@ -41,15 +41,26 @@ func Cat(out io.Writer, files []string, fs fs.Filesystem) error {
 // apiVersion, kind, namespace and name as a previous one it replaces it in the
 // output.
 func Stream(out io.Writer, stream io.Reader) error {
-	docsInStream, err := k8syaml.Decode(stream)
+	documents, err := StreamDecodeOnly(stream)
 	if err != nil {
 		return err
+	}
+
+	return k8syaml.Encode(out, documents)
+}
+
+// StreamDecodeOnly works like Stream, but returns a slice of unstructured
+// objects instead of writing them to an output.
+func StreamDecodeOnly(stream io.Reader) ([]unstructured.Unstructured, error) {
+	docsInStream, err := k8syaml.Decode(stream)
+	if err != nil {
+		return nil, err
 	}
 
 	var documents []unstructured.Unstructured
 	documents = addOrReplaceExistingDocs(documents, docsInStream)
 
-	return k8syaml.Encode(out, documents)
+	return documents, nil
 }
 
 func addOrReplaceExistingDocs(existingDocs, newDocs []unstructured.Unstructured) []unstructured.Unstructured {

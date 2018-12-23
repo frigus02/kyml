@@ -43,6 +43,7 @@ Available Commands:
   cat         Concatenate Kubernetes YAML files to stdout
   completion  Generate completion scripts for your shell
   help        Help about any command
+  resolve     Resolve image tags to their distribution digest
   test        Run a snapshot test on the diff between Kubernetes YAML files of two environments
   tmpl        Template Kubernetes YAML files
 
@@ -124,6 +125,17 @@ kyml cat manifests/production/* |
         -v Greeting=hello \
         -v ImageTag=$(git rev-parse --short HEAD) \
         -e TRAVIS_BRANCH |
+    kubectl apply -f -
+```
+
+### 5. Resolve Docker images to their digest
+
+If you tag the same image multiple times (e.g. because you build every commit, tagging images with the commit sha), you may want to resolve the tags to the image digest. This makes sure Kubernetes only restarts your applications if the image content changed.
+
+```sh
+kyml cat manifests/production/* |
+    kyml tmpl -v ImageTag=$(git rev-parse --short HEAD) |
+    kyml resolve |
     kubectl apply -f -
 ```
 

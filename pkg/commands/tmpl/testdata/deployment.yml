@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: the-container
-          image: monopole/hello:{{.tag}}
+          image: kyml/hello:{{.tag}}
           env:
             - name: SECRET
               value: "{{.SECRET}}"
