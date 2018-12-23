@@ -11,8 +11,8 @@ type completionOptions struct {
 	shell string
 }
 
-// NewCompletionCommand creates a new completion command.
-func NewCompletionCommand(out io.Writer, rootCommand *cobra.Command) *cobra.Command {
+// NewCmdCompletion creates a new completion command.
+func NewCmdCompletion(out io.Writer, rootCommand *cobra.Command) *cobra.Command {
 	var o completionOptions
 
 	var command = &cobra.Command{
