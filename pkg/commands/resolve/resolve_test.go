@@ -213,9 +213,9 @@ func Test_resolveOptions_Run(t *testing.T) {
 				gotImageRefs = append(gotImageRefs, imageRef)
 				if tt.resolveErr != nil {
 					return "", tt.resolveErr
-				} else {
-					return tt.resolveOut[imageRef], nil
 				}
+
+				return tt.resolveOut[imageRef], nil
 			}
 
 			if err := o.Run(tt.args.in, out, resolveImageMock); (err != nil) != tt.wantErr {
