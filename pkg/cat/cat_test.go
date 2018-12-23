@@ -19,7 +19,7 @@ spec:
   template:
     spec:
       containers:
-      - image: monopole/hello
+      - image: kyml/hello
         name: the-container
 ---
 apiVersion: v1
