@@ -11,21 +11,50 @@ import (
 // spec.template.spec in the listed resource kinds.
 //
 // See: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#container-v1-core
-var supportedKinds = []schema.GroupVersionKind{
-	schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "DaemonSet"},
-	schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "Deployment"},
-	schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "ReplicaSet"},
-	schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "StatefulSet"},
-	schema.GroupVersionKind{Group: "batch", Version: "v1", Kind: "Job"},
-	schema.GroupVersionKind{Group: "core", Version: "v1", Kind: "ReplicationController"},
+var supportedKinds = []struct {
+	GroupVersionKind schema.GroupVersionKind
+	PathToPodSpec    []string
+}{
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "DaemonSet"},
+		PathToPodSpec:    []string{"spec", "template", "spec"},
+	},
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "Deployment"},
+		PathToPodSpec:    []string{"spec", "template", "spec"},
+	},
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "ReplicaSet"},
+		PathToPodSpec:    []string{"spec", "template", "spec"},
+	},
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "StatefulSet"},
+		PathToPodSpec:    []string{"spec", "template", "spec"},
+	},
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "batch", Version: "v1", Kind: "Job"},
+		PathToPodSpec:    []string{"spec", "template", "spec"},
+	},
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "batch", Version: "v1beta1", Kind: "CronJob"},
+		PathToPodSpec:    []string{"spec", "jobTemplate", "spec", "template", "spec"},
+	},
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "batch", Version: "v1", Kind: "Job"},
+		PathToPodSpec:    []string{"spec", "template", "spec"},
+	},
+	{
+		GroupVersionKind: schema.GroupVersionKind{Group: "core", Version: "v1", Kind: "ReplicationController"},
+		PathToPodSpec:    []string{"spec", "template", "spec"},
+	},
 }
 
-func isSupportedKind(gvk schema.GroupVersionKind) bool {
-	for _, supportedGvk := range supportedKinds {
-		if k8syaml.GVKEquals(gvk, supportedGvk) {
-			return true
+func getPathToPodSpec(gvk schema.GroupVersionKind) []string {
+	for _, kind := range supportedKinds {
+		if k8syaml.GVKEquals(gvk, kind.GroupVersionKind) {
+			return kind.PathToPodSpec
 		}
 	}
 
-	return false
+	return nil
 }
