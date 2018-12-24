@@ -1,6 +1,10 @@
 package resolve
 
-import "k8s.io/apimachinery/pkg/runtime/schema"
+import (
+	"github.com/frigus02/kyml/pkg/k8syaml"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
+)
 
 // We only want to resolve images mentioned in the `image` property of
 // containers. These currently only appear in PodSpec, which is under the path
@@ -18,9 +22,7 @@ var supportedKinds = []schema.GroupVersionKind{
 
 func isSupportedKind(gvk schema.GroupVersionKind) bool {
 	for _, supportedGvk := range supportedKinds {
-		if gvk.Group == supportedGvk.Group &&
-			gvk.Version == supportedGvk.Version &&
-			gvk.Kind == supportedGvk.Kind {
+		if k8syaml.GVKEquals(gvk, supportedGvk) {
 			return true
 		}
 	}

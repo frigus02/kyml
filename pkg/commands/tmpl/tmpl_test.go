@@ -8,6 +8,34 @@ import (
 	"testing"
 )
 
+var templatedDeployment = `---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    branch: my-feature
+  name: the-deployment
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - env:
+        - name: SECRET
+          value: '''123_"_'
+        image: kyml/hello:latest
+        name: the-container
+`
+
+func mustOpenFile(t *testing.T, filename string) io.Reader {
+	file, err := os.Open(filename)
+	if err != nil {
+		t.Fatalf("error opening testdata: %v", err)
+	}
+
+	return file
+}
+
 func Test_tmplOptions_Validate(t *testing.T) {
 	type args struct {
 		args []string
@@ -42,36 +70,8 @@ func Test_tmplOptions_Validate(t *testing.T) {
 	}
 }
 
-func mustOpenFile(t *testing.T, filename string) io.Reader {
-	file, err := os.Open(filename)
-	if err != nil {
-		t.Fatalf("error opening testdata: %v", err)
-	}
-
-	return file
-}
-
-var templatedDeployment = `---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    branch: 'my-feature'
-  name: the-deployment
-spec:
-  replicas: 1
-  template:
-    spec:
-      containers:
-      - env:
-        - name: SECRET
-          value: '123'
-        image: kyml/hello:latest
-        name: the-container
-`
-
 func Test_tmplOptions_Run(t *testing.T) {
-	if err := os.Setenv("SECRET", "123"); err != nil {
+	if err := os.Setenv("SECRET", "'123_\"_"); err != nil {
 		t.Fatal(err)
 	}
 

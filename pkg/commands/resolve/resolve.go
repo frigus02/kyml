@@ -57,11 +57,11 @@ func (o *resolveOptions) Run(in io.Reader, out io.Writer, resolveImage imageReso
 
 	for _, doc := range documents {
 		if isSupportedKind(doc.GroupVersionKind()) {
-			if err := resolveImagesInContainers(doc.Object, resolveImage, "spec", "template", "spec", "initContainers"); err != nil {
+			if err := resolveImagesInContainers(doc.UnstructuredContent(), resolveImage, "spec", "template", "spec", "initContainers"); err != nil {
 				return err
 			}
 
-			if err := resolveImagesInContainers(doc.Object, resolveImage, "spec", "template", "spec", "containers"); err != nil {
+			if err := resolveImagesInContainers(doc.UnstructuredContent(), resolveImage, "spec", "template", "spec", "containers"); err != nil {
 				return err
 			}
 		}
