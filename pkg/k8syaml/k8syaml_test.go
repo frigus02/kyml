@@ -50,8 +50,8 @@ var invalidYaml = `
 hello world!!
 `
 
-var unstructuredDocuments = []unstructured.Unstructured{
-	unstructured.Unstructured{
+var unstructuredDocuments = []*unstructured.Unstructured{
+	&unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "v1",
 			"kind":       "Namespace",
@@ -60,7 +60,7 @@ var unstructuredDocuments = []unstructured.Unstructured{
 			},
 		},
 	},
-	unstructured.Unstructured{
+	&unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "v1",
 			"kind":       "Service",
@@ -84,7 +84,7 @@ func TestDecode(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []unstructured.Unstructured
+		want    []*unstructured.Unstructured
 		wantErr bool
 	}{
 		{
@@ -116,7 +116,7 @@ func TestDecode(t *testing.T) {
 
 func TestEncode(t *testing.T) {
 	type args struct {
-		documents []unstructured.Unstructured
+		documents []*unstructured.Unstructured
 	}
 	tests := []struct {
 		name    string

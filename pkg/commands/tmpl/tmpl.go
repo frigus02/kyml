@@ -9,6 +9,7 @@ import (
 
 	"github.com/frigus02/cobra"
 	"github.com/frigus02/kyml/pkg/cat"
+	"github.com/frigus02/kyml/pkg/k8syaml"
 )
 
 type tmplOptions struct {
@@ -69,20 +70,76 @@ func (o *tmplOptions) Run(in io.Reader, out io.Writer) error {
 		vars[env] = os.Getenv(env)
 	}
 
-	var buffer bytes.Buffer
-	if err := cat.Stream(&buffer, in); err != nil {
-		return err
-	}
-
-	tmpl, err := template.New("").Parse(buffer.String())
+	documents, err := cat.StreamDecodeOnly(in)
 	if err != nil {
 		return err
 	}
 
-	if err = tmpl.Execute(out, vars); err != nil {
-		return err
+	var execTmpl = func(s string) (string, error) {
+		tmpl, err := template.New("").Parse(s)
+		if err != nil {
+			return "", err
+		}
+
+		var result bytes.Buffer
+		if err = tmpl.Execute(&result, vars); err != nil {
+			return "", err
+		}
+
+		return result.String(), nil
 	}
 
-	fmt.Fprint(out)
-	return nil
+	for _, doc := range documents {
+		templated, err := templateValuesInMap(doc.UnstructuredContent(), execTmpl)
+		if err != nil {
+			return err
+		}
+
+		doc.SetUnstructuredContent(templated)
+	}
+
+	return k8syaml.Encode(out, documents)
+}
+
+type valueTemplater func(s string) (string, error)
+
+func templateValuesInMap(m map[string]interface{}, execTmpl valueTemplater) (map[string]interface{}, error) {
+	newMap := make(map[string]interface{}, len(m))
+	for key, value := range m {
+		templated, err := templateValue(value, execTmpl)
+		if err != nil {
+			return nil, err
+		}
+
+		newMap[key] = templated
+	}
+
+	return newMap, nil
+}
+
+func templateValuesInSlice(s []interface{}, execTmpl valueTemplater) ([]interface{}, error) {
+	newSlice := make([]interface{}, len(s))
+	for index, value := range s {
+		templated, err := templateValue(value, execTmpl)
+		if err != nil {
+			return nil, err
+		}
+
+		newSlice[index] = templated
+	}
+
+	return newSlice, nil
+}
+
+func templateValue(value interface{}, execTmpl valueTemplater) (interface{}, error) {
+	switch value := value.(type) {
+	case map[string]interface{}:
+		return templateValuesInMap(value, execTmpl)
+	case []interface{}:
+		return templateValuesInSlice(value, execTmpl)
+	case string:
+		return execTmpl(value)
+	default:
+		return value, nil
+	}
 }

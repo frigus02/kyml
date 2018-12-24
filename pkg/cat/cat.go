@@ -13,7 +13,7 @@ import (
 // another in the specified writer. If a YAML document has the same apiVersion,
 // kind, namespace and name as a previous one it replaces it in the output.
 func Cat(out io.Writer, files []string, fs fs.Filesystem) error {
-	var documents []unstructured.Unstructured
+	var documents []*unstructured.Unstructured
 	for _, filename := range files {
 		file, err := fs.Open(filename)
 		if err != nil {
@@ -51,24 +51,24 @@ func Stream(out io.Writer, stream io.Reader) error {
 
 // StreamDecodeOnly works like Stream, but returns a slice of unstructured
 // objects instead of writing them to an output.
-func StreamDecodeOnly(stream io.Reader) ([]unstructured.Unstructured, error) {
+func StreamDecodeOnly(stream io.Reader) ([]*unstructured.Unstructured, error) {
 	docsInStream, err := k8syaml.Decode(stream)
 	if err != nil {
 		return nil, err
 	}
 
-	var documents []unstructured.Unstructured
+	var documents []*unstructured.Unstructured
 	documents = addOrReplaceExistingDocs(documents, docsInStream)
 
 	return documents, nil
 }
 
-func addOrReplaceExistingDocs(existingDocs, newDocs []unstructured.Unstructured) []unstructured.Unstructured {
+func addOrReplaceExistingDocs(existingDocs, newDocs []*unstructured.Unstructured) []*unstructured.Unstructured {
 	for _, doc := range newDocs {
+		docGVK := doc.GroupVersionKind()
 		found := false
 		for i, seenDoc := range existingDocs {
-			if doc.GetAPIVersion() == seenDoc.GetAPIVersion() &&
-				doc.GetKind() == seenDoc.GetKind() &&
+			if k8syaml.GVKEquals(docGVK, seenDoc.GroupVersionKind()) &&
 				doc.GetNamespace() == seenDoc.GetNamespace() &&
 				doc.GetName() == doc.GetName() {
 				existingDocs[i] = doc
