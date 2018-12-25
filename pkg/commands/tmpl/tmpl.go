@@ -26,9 +26,9 @@ func NewCmdTmpl(in io.Reader, out io.Writer) *cobra.Command {
 		Short: "Template Kubernetes YAML files",
 		Long: `Template Kubernetes YAML files. Data is read from stdin, executed with the specified context, and printed to stdout.
 
-Templates use the go template syntax (https://golang.org/pkg/text/template/). You can add data to the template context using the options "--value" and "--env". Please note that keys (including environment variable names) are case sensitive in the template.
+Templates are only supported in values of type string. They use the go template syntax (https://golang.org/pkg/text/template/). You can add data to the template context using the options "--value" and "--env". Please note that keys (including environment variable names) are case sensitive.
 
-The command parses the data as Kubernetes YAML documents before templating. While doing this it applies the same transformations as "kyml cat". Since the document is parsed, you need to make sure it is still valid YAML, even with the template characters inside.`,
+The command parses the data as Kubernetes YAML documents before templating. While doing so it applies the same transformations as "kyml cat". Since the document is parsed, you need to make sure it is still valid YAML, even with the template characters inside.`,
 		Example: `  # Template feature branch files and deploy to cluster
   kyml cat feature/* |
     kyml tmpl \
