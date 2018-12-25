@@ -33,6 +33,8 @@ func Cat(out io.Writer, files []string, fs fs.Filesystem) error {
 		documents = addOrReplaceExistingDocs(documents, docsInFile)
 	}
 
+	sortDocs(documents)
+
 	return k8syaml.Encode(out, documents)
 }
 
@@ -60,27 +62,7 @@ func StreamDecodeOnly(stream io.Reader) ([]*unstructured.Unstructured, error) {
 	var documents []*unstructured.Unstructured
 	documents = addOrReplaceExistingDocs(documents, docsInStream)
 
+	sortDocs(documents)
+
 	return documents, nil
-}
-
-func addOrReplaceExistingDocs(existingDocs, newDocs []*unstructured.Unstructured) []*unstructured.Unstructured {
-	for _, doc := range newDocs {
-		docGVK := doc.GroupVersionKind()
-		found := false
-		for i, seenDoc := range existingDocs {
-			if k8syaml.GVKEquals(docGVK, seenDoc.GroupVersionKind()) &&
-				doc.GetNamespace() == seenDoc.GetNamespace() &&
-				doc.GetName() == doc.GetName() {
-				existingDocs[i] = doc
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			existingDocs = append(existingDocs, doc)
-		}
-	}
-
-	return existingDocs
 }

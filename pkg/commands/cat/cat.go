@@ -25,6 +25,7 @@ func NewCmdCat(out io.Writer, fs fs.Filesystem) *cobra.Command {
 YAML documents are changed in the following ways:
 - Documents are parsed as Kubernetes YAML documents and then formatted. This will change indentation and ordering of properties.
 - Documents are deduplicated. If multiple YAML documents refer to the same Kubernetes resource, only the last one will appear in the result.
+- Documents are sorted by dependencies, e.g. namespaces come before deployments.
 
 The result of this command can be piped into other commands like "kyml test" or "kubectl apply".`,
 		Example: `  # Cat one folder

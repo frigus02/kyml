@@ -10,18 +10,6 @@ import (
 )
 
 var testDataManifests = `---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: the-deployment
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - image: kyml/hello
-        name: the-container
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -33,6 +21,18 @@ spec:
   selector:
     deployment: hello
   type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: the-deployment
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - image: kyml/hello
+        name: the-container
 `
 
 func mustCreateFs(t *testing.T) fs.Filesystem {
@@ -81,7 +81,7 @@ func TestCat(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "print deduplicated docs from files",
+			name: "print deduplicated and sorted docs from files",
 			args: args{
 				files: []string{
 					"testdata/base/deployment.yml",
@@ -130,7 +130,7 @@ func TestStream(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "print deduplicated docs from stream",
+			name: "print deduplicated and sorted docs from stream",
 			args: args{
 				stream: mustCreateStream(t),
 			},
