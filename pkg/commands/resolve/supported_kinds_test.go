@@ -23,7 +23,7 @@ func Test_getPathToPodSpec(t *testing.T) {
 		},
 		{
 			name: "not supported",
-			args: args{schema.GroupVersionKind{Group: "core", Version: "v1", Kind: "Service"}},
+			args: args{schema.GroupVersionKind{Group: "", Version: "v1", Kind: "Service"}},
 			want: nil,
 		},
 	}

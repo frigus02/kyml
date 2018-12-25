@@ -40,11 +40,7 @@ var supportedKinds = []struct {
 		PathToPodSpec:    []string{"spec", "jobTemplate", "spec", "template", "spec"},
 	},
 	{
-		GroupVersionKind: schema.GroupVersionKind{Group: "batch", Version: "v1", Kind: "Job"},
-		PathToPodSpec:    []string{"spec", "template", "spec"},
-	},
-	{
-		GroupVersionKind: schema.GroupVersionKind{Group: "core", Version: "v1", Kind: "ReplicationController"},
+		GroupVersionKind: schema.GroupVersionKind{Group: "", Version: "v1", Kind: "ReplicationController"},
 		PathToPodSpec:    []string{"spec", "template", "spec"},
 	},
 }

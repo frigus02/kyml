@@ -159,10 +159,10 @@ func Test_testOptions_Run(t *testing.T) {
 			},
 			args: args{
 				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
-				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 2\n"),
+				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 2\n"),
 			},
 			wantOut:          "",
-			wantSnapshot:     "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 2\n",
+			wantSnapshot:     "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 2\n",
 			wantErr:          true,
 			wantErrToContain: "--- snapshot diff\n+++ this diff\n@@ -5 +5 @@\n-+  replicas: 2\n++  replicas: 3\n",
 		},
@@ -177,10 +177,10 @@ func Test_testOptions_Run(t *testing.T) {
 			},
 			args: args{
 				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
-				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 2\n"),
+				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 2\n"),
 			},
-			wantOut:      "---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: the-deployment\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n      - image: kyml/hello\n        name: the-container\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: the-service\nspec:\n  ports:\n  - port: 80\n    protocol: TCP\n  selector:\n    deployment: hello\n  type: LoadBalancer\n",
-			wantSnapshot: "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 3\n",
+			wantOut:      "---\napiVersion: v1\nkind: Service\nmetadata:\n  name: the-service\nspec:\n  ports:\n  - port: 80\n    protocol: TCP\n  selector:\n    deployment: hello\n  type: LoadBalancer\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: the-deployment\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n      - image: kyml/hello\n        name: the-container\n",
+			wantSnapshot: "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 3\n",
 			wantErr:      false,
 		},
 		{
@@ -194,10 +194,10 @@ func Test_testOptions_Run(t *testing.T) {
 			},
 			args: args{
 				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
-				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 3\n"),
+				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 3\n"),
 			},
-			wantOut:      "---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: the-deployment\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n      - image: kyml/hello\n        name: the-container\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: the-service\nspec:\n  ports:\n  - port: 80\n    protocol: TCP\n  selector:\n    deployment: hello\n  type: LoadBalancer\n",
-			wantSnapshot: "--- staging\n+++ production\n@@ -7 +7 @@\n-  replicas: 1\n+  replicas: 3\n",
+			wantOut:      "---\napiVersion: v1\nkind: Service\nmetadata:\n  name: the-service\nspec:\n  ports:\n  - port: 80\n    protocol: TCP\n  selector:\n    deployment: hello\n  type: LoadBalancer\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: the-deployment\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n      - image: kyml/hello\n        name: the-container\n",
+			wantSnapshot: "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 3\n",
 			wantErr:      false,
 		},
 	}
