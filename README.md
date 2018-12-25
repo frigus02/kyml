@@ -88,7 +88,10 @@ You can adapt these or use anything else, that makes sense for your application.
 
 ### 2. Concatenate your files
 
-In the simplest case you concatenate your files and pipe them into `kubectl apply` to deploy them. If multiple files contain the same Kubernetes resource, `kyml cat` deduplicates them. Only the last one makes it into the output.
+In the simplest case you concatenate your files and pipe them into `kubectl apply` to deploy them. This does 2 things:
+
+- If multiple files contain the same Kubernetes resource, `kyml cat` deduplicates them. Only the one specified last makes it into the output.
+- Resources are sorted by dependencies. So even if you run `kyml cat deployment.yml namespace.yml` the namespace will appear first in the output. This way you don't have to prefix your filenames with numbers just to make sure your resources are created in the correct order.
 
 ```sh
 kyml cat manifests/production/* | kubectl apply -f -
