@@ -142,6 +142,10 @@ kyml cat manifests/production/* |
     kubectl apply -f -
 ```
 
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 [MIT](LICENSE)
