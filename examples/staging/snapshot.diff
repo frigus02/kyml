@@ -1,0 +1,33 @@
+--- staging
++++ feature
+@@ -7 +7,2 @@
+-  name: the-service
++    branch: '{{.TRAVIS_BRANCH}}'
++  name: the-service-{{.TRAVIS_BRANCH}}
+@@ -22 +23,2 @@
+-  name: the-deployment
++    branch: '{{.TRAVIS_BRANCH}}'
++  name: the-deployment-{{.TRAVIS_BRANCH}}
+@@ -24 +26 @@
+-  replicas: 2
++  replicas: 1
+@@ -31,0 +34 @@
++        branch: '{{.TRAVIS_BRANCH}}'
+@@ -45,17 +47,0 @@
+----
+-apiVersion: extensions/v1beta1
+-kind: Ingress
+-metadata:
+-  annotations:
+-    nginx.ingress.kubernetes.io/rewrite-target: /
+-  labels:
+-    app: hello
+-  name: the-ingress
+-spec:
+-  rules:
+-  - http:
+-      paths:
+-      - backend:
+-          serviceName: the-service
+-          servicePort: 80
+-        path: /the-path

@@ -5,7 +5,10 @@ metadata:
   labels:
     app: hello
 spec:
-  replicas: 3
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello
   template:
     metadata:
       labels:
@@ -13,10 +16,9 @@ spec:
     spec:
       containers:
         - name: the-container
-          image: kyml/hello{{.ImageTag}}
-          command: ["/hello", "--port=8080"]
+          image: nginxdemos/hello:{{.ImageTag}}
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
             - name: GREETING
               value: "{{.Greeting}}"
