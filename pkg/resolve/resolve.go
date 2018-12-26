@@ -74,26 +74,52 @@ func resolveWithDockerManifestInspect(imageRef string, execCmd commandExecutor) 
 		return "", fmt.Errorf("docker manifest inspect: %v", err)
 	}
 
-	outStr := string(out)
-	if outStr[0] == '[' {
-		// Manifest lists contain different manifests for different platforms.
-		// To support this, kyml would need to pick the manifest for the
-		// target Kubernetes platform.
-		// https://docs.docker.com/registry/spec/manifest-v2-2/#manifest-list
-		return "", fmt.Errorf("registry returned manifest list for %s, which is not supported yet", imageRef)
+	var digest string
+
+	if string(out)[0] == '[' {
+		// The registry returned a multi platform manifest list. In this case
+		// we always return linux amd64.
+		// See: https://blog.docker.com/2017/09/docker-official-images-now-multi-platform/
+		// See: https://docs.docker.com/registry/spec/manifest-v2-2/#manifest-list
+
+		var result []struct {
+			Descriptor struct {
+				Digest   string `json:"digest"`
+				Platform struct {
+					Architecture string `json:"architecture"`
+					OS           string `json:"os"`
+				} `json:"platform"`
+			} `json:"Descriptor"`
+		}
+		if err = json.Unmarshal(out, &result); err != nil {
+			return "", fmt.Errorf("json decode manifest list: %v", err)
+		}
+
+		for _, platformImage := range result {
+			if platformImage.Descriptor.Platform.Architecture == "amd64" &&
+				platformImage.Descriptor.Platform.OS == "linux" {
+				digest = platformImage.Descriptor.Digest
+				break
+			}
+		}
+
+		if digest == "" {
+			return "", nil
+		}
+	} else {
+		var result struct {
+			Descriptor struct {
+				Digest string `json:"digest"`
+			} `json:"Descriptor"`
+		}
+		if err = json.Unmarshal(out, &result); err != nil {
+			return "", fmt.Errorf("json decode manifest: %v", err)
+		}
+
+		digest = result.Descriptor.Digest
 	}
 
-	var result struct {
-		Descriptor struct {
-			Digest string `json:"digest"`
-		} `json:"Descriptor"`
-	}
-	if err = json.Unmarshal(out, &result); err != nil {
-		return "", fmt.Errorf("json decode result: %v", err)
-	}
-
-	repo := removeTagAndDigest(imageRef)
-	return repo + "@" + result.Descriptor.Digest, nil
+	return removeTagAndDigest(imageRef) + "@" + digest, nil
 }
 
 func removeTagAndDigest(imageRef string) string {
