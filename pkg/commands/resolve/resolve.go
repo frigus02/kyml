@@ -23,7 +23,9 @@ func NewCmdResolve(in io.Reader, out io.Writer) *cobra.Command {
 		Short: "Resolve image tags to their distribution digest",
 		Long: `Resolve image tags in Kubernetes YAML documents to their distribution digest. Data is read from stdin and printed to stdout.
 
-This can be helpful if you tag the same image multiple times, e.g. because you build for every commit and use the commit sha as the Docker tag. Resolving the tag to the content digest before sending the manifests to Kubernetes makes sure your services only restart if the image actually changed.`,
+This can be helpful if you tag the same image multiple times, e.g. because you build for every commit and use the commit sha as the Docker tag. Resolving the tag to the content digest before sending the manifests to Kubernetes makes sure your services only restart if the image actually changed.
+
+In case an image is multi platform, it is resolved to the linux amd64 variant.`,
 		Example: `  # Resolve image tags before deploying to cluster
   kyml cat feature/* | kyml resolve | kubectl apply -f -`,
 		RunE: func(cmd *cobra.Command, args []string) error {

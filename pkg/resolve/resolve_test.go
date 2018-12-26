@@ -130,7 +130,30 @@ func Test_resolveWithDockerManifestInspect(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "got manifest list",
+			name: "manifest list does not contain linux amd64",
+			args: args{"openjdk:latest"},
+			cmdOut: []byte(`[
+				{
+					"Ref": "docker.io/library/openjdk:latest@sha256:ff3da04131714a6e03d02684a33a3858e622923344534de87ff453d03181337a",
+					"Descriptor": {
+						"mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+						"digest": "sha256:ff3da04131714a6e03d02684a33a3858e622923344534de87ff453d03181337a",
+						"size": 2000,
+						"platform": {
+							"architecture": "arm",
+							"os": "linux",
+							"variant": "v5"
+						}
+					}
+				}
+			]`),
+			cmdErr:  nil,
+			want:    "",
+			wantCmd: "docker manifest inspect --verbose openjdk:latest",
+			wantErr: false,
+		},
+		{
+			name: "success with manifest list",
 			args: args{"openjdk:latest"},
 			cmdOut: []byte(`[
 				{
@@ -160,9 +183,9 @@ func Test_resolveWithDockerManifestInspect(t *testing.T) {
 				}
 			]`),
 			cmdErr:  nil,
-			want:    "",
+			want:    "openjdk@sha256:c7381bfd53670f1211314885b03b98f5e13fddf6958afeec61092b07c56ddef1",
 			wantCmd: "docker manifest inspect --verbose openjdk:latest",
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name: "success",
