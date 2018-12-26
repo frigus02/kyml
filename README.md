@@ -28,7 +28,14 @@ There are many tool out there to manage Kubernetes manifests, e.g. [ksonnet](htt
 
 ## Install
 
-TODO ...
+Download a binary from the [release page](https://github.com/frigus02/kyml/releases).
+
+Or download using curl on the command line:
+
+```sh
+curl -sSL -o /usr/local/bin/kyml https://github.com/frigus02/kyml/releases/download/v20181228/kyml_20181228_linux_amd64
+chmod +x /usr/local/bin/kyml
+```
 
 ## Usage
 
