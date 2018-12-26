@@ -6,8 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-<!--## YYYY-MM-DD-->
+## 20181226
 
 - First release.
 
-[unreleased]: https://github.com/frigus02/kyml/compare/vyyyy-mm-dd...HEAD
+[unreleased]: https://github.com/frigus02/kyml/compare/v20181226...HEAD
