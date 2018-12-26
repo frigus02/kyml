@@ -6,6 +6,9 @@ metadata:
     app: hello
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: hello
   template:
     metadata:
       labels:
@@ -14,9 +17,8 @@ spec:
       containers:
         - name: the-container
           image: nginxdemos/hello:{{.ImageTag}}
-          command: ["/hello", "--port=8080"]
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
             - name: GREETING
               value: "{{.Greeting}}"

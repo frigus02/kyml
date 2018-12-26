@@ -8,7 +8,10 @@
 -  name: the-deployment
 +    branch: '{{.TRAVIS_BRANCH}}'
 +  name: the-deployment-{{.TRAVIS_BRANCH}}
-@@ -28,0 +31 @@
+@@ -24 +26 @@
+-  replicas: 2
++  replicas: 1
+@@ -31,0 +34 @@
 +        branch: '{{.TRAVIS_BRANCH}}'
 @@ -45,17 +47,0 @@
 ----
