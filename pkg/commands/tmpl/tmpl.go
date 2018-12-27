@@ -75,8 +75,8 @@ func (o *tmplOptions) Run(in io.Reader, out io.Writer) error {
 		return err
 	}
 
-	var execTmpl = func(s string) (string, error) {
-		tmpl, err := template.New("").Parse(s)
+	var execTmpl = func(text, name string) (string, error) {
+		tmpl, err := template.New(name).Option("missingkey=error").Parse(text)
 		if err != nil {
 			return "", err
 		}
@@ -101,12 +101,12 @@ func (o *tmplOptions) Run(in io.Reader, out io.Writer) error {
 	return k8syaml.Encode(out, documents)
 }
 
-type valueTemplater func(s string) (string, error)
+type valueTemplater func(text, name string) (string, error)
 
 func templateValuesInMap(m map[string]interface{}, execTmpl valueTemplater) (map[string]interface{}, error) {
 	newMap := make(map[string]interface{}, len(m))
 	for key, value := range m {
-		templated, err := templateValue(value, execTmpl)
+		templated, err := templateValue(value, key, execTmpl)
 		if err != nil {
 			return nil, err
 		}
@@ -117,10 +117,10 @@ func templateValuesInMap(m map[string]interface{}, execTmpl valueTemplater) (map
 	return newMap, nil
 }
 
-func templateValuesInSlice(s []interface{}, execTmpl valueTemplater) ([]interface{}, error) {
+func templateValuesInSlice(s []interface{}, name string, execTmpl valueTemplater) ([]interface{}, error) {
 	newSlice := make([]interface{}, len(s))
 	for index, value := range s {
-		templated, err := templateValue(value, execTmpl)
+		templated, err := templateValue(value, fmt.Sprintf("%s[%d]", name, index), execTmpl)
 		if err != nil {
 			return nil, err
 		}
@@ -131,14 +131,14 @@ func templateValuesInSlice(s []interface{}, execTmpl valueTemplater) ([]interfac
 	return newSlice, nil
 }
 
-func templateValue(value interface{}, execTmpl valueTemplater) (interface{}, error) {
+func templateValue(value interface{}, name string, execTmpl valueTemplater) (interface{}, error) {
 	switch value := value.(type) {
 	case map[string]interface{}:
 		return templateValuesInMap(value, execTmpl)
 	case []interface{}:
-		return templateValuesInSlice(value, execTmpl)
+		return templateValuesInSlice(value, name, execTmpl)
 	case string:
-		return execTmpl(value)
+		return execTmpl(value, name)
 	default:
 		return value, nil
 	}

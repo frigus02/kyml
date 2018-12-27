@@ -8,6 +8,25 @@ import (
 	"testing"
 )
 
+var testManifestDeployment = `---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: the-deployment
+  labels:
+    branch: "{{.branch}}"
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: the-container
+          image: kyml/hello:{{.tag}}
+          env:
+            - name: SECRET
+              value: "{{.SECRET}}"
+`
+
 var templatedDeployment = `---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,15 +45,6 @@ spec:
         image: kyml/hello:latest
         name: the-container
 `
-
-func mustOpenFile(t *testing.T, filename string) io.Reader {
-	file, err := os.Open(filename)
-	if err != nil {
-		t.Fatalf("error opening testdata: %v", err)
-	}
-
-	return file
-}
 
 func Test_tmplOptions_Validate(t *testing.T) {
 	type args struct {
@@ -95,10 +105,24 @@ func Test_tmplOptions_Run(t *testing.T) {
 				envVars: []string{"SECRET"},
 			},
 			args: args{
-				in: mustOpenFile(t, "testdata/deployment.yml"),
+				in: strings.NewReader(testManifestDeployment),
 			},
 			wantOut: templatedDeployment,
 			wantErr: false,
+		},
+		{
+			name: "missing value",
+			o: &tmplOptions{
+				values: map[string]string{
+					"tag": "latest",
+				},
+				envVars: []string{"SECRET"},
+			},
+			args: args{
+				in: strings.NewReader(testManifestDeployment),
+			},
+			wantOut: "",
+			wantErr: true,
 		},
 		{
 			name: "invalid template",
