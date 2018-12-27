@@ -62,7 +62,7 @@ var testManifestDeployment = `---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: the-deployment
+  name: deployment-a
 spec:
   template:
     spec:
@@ -72,13 +72,24 @@ spec:
       initContainers:
       - image: kyml/init
         name: the-init-container
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-b
+spec:
+  template:
+    spec:
+      containers:
+      - image: kyml/hello
+        name: the-container
 `
 
 var testManifestDeploymentResolved = `---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: the-deployment
+  name: deployment-a
 spec:
   template:
     spec:
@@ -88,6 +99,17 @@ spec:
       initContainers:
       - image: kyml/init@sha256:2cbb95c7479634c53bc2be243554a98d6928c189360fa958d2c970974e7f131f
         name: the-init-container
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-b
+spec:
+  template:
+    spec:
+      containers:
+      - image: kyml/hello@sha256:2cbb95c7479634c53bc2be243554a98d6928c189360fa958d2c970974e7f131f
+        name: the-container
 `
 
 func Test_resolveOptions_Validate(t *testing.T) {
@@ -129,67 +151,74 @@ func Test_resolveOptions_Run(t *testing.T) {
 		in io.Reader
 	}
 	tests := []struct {
-		name          string
-		args          args
-		resolveOut    map[string]string
-		resolveErr    error
-		wantOut       string
-		wantImageRefs []string
-		wantErr       bool
+		name             string
+		args             args
+		resolveOut       map[string]string
+		resolveErr       error
+		wantOut          string
+		wantResolveCount int
+		wantImageRefs    []string
+		wantErr          bool
 	}{
 		{
-			name:          "skip unsupported kinds",
-			args:          args{strings.NewReader(testManifestService)},
-			resolveOut:    nil,
-			resolveErr:    nil,
-			wantOut:       testManifestService,
-			wantImageRefs: nil,
-			wantErr:       false,
+			name:             "skip unsupported kinds",
+			args:             args{strings.NewReader(testManifestService)},
+			resolveOut:       nil,
+			resolveErr:       nil,
+			wantOut:          testManifestService,
+			wantResolveCount: 0,
+			wantImageRefs:    nil,
+			wantErr:          false,
 		},
 		{
-			name:          "containers array does not exist",
-			args:          args{strings.NewReader(testManifestDeploymentNoContainers)},
-			resolveOut:    nil,
-			resolveErr:    nil,
-			wantOut:       testManifestDeploymentNoContainers,
-			wantImageRefs: nil,
-			wantErr:       false,
+			name:             "containers array does not exist",
+			args:             args{strings.NewReader(testManifestDeploymentNoContainers)},
+			resolveOut:       nil,
+			resolveErr:       nil,
+			wantOut:          testManifestDeploymentNoContainers,
+			wantResolveCount: 0,
+			wantImageRefs:    nil,
+			wantErr:          false,
 		},
 		{
-			name:          "container is no yaml object",
-			args:          args{strings.NewReader(testManifestDeploymentMalformedContainer)},
-			resolveOut:    nil,
-			resolveErr:    nil,
-			wantOut:       testManifestDeploymentMalformedContainer,
-			wantImageRefs: nil,
-			wantErr:       false,
+			name:             "container is no yaml object",
+			args:             args{strings.NewReader(testManifestDeploymentMalformedContainer)},
+			resolveOut:       nil,
+			resolveErr:       nil,
+			wantOut:          testManifestDeploymentMalformedContainer,
+			wantResolveCount: 0,
+			wantImageRefs:    nil,
+			wantErr:          false,
 		},
 		{
-			name:          "container has no image",
-			args:          args{strings.NewReader(testManifestDeploymentNoImage)},
-			resolveOut:    nil,
-			resolveErr:    nil,
-			wantOut:       testManifestDeploymentNoImage,
-			wantImageRefs: nil,
-			wantErr:       false,
+			name:             "container has no image",
+			args:             args{strings.NewReader(testManifestDeploymentNoImage)},
+			resolveOut:       nil,
+			resolveErr:       nil,
+			wantOut:          testManifestDeploymentNoImage,
+			wantResolveCount: 0,
+			wantImageRefs:    nil,
+			wantErr:          false,
 		},
 		{
-			name:          "resolve errors",
-			args:          args{strings.NewReader(testManifestDeployment)},
-			resolveOut:    nil,
-			resolveErr:    errors.New("oh no"),
-			wantOut:       "",
-			wantImageRefs: []string{"kyml/init"},
-			wantErr:       true,
+			name:             "resolve errors",
+			args:             args{strings.NewReader(testManifestDeployment)},
+			resolveOut:       nil,
+			resolveErr:       errors.New("oh no"),
+			wantOut:          "",
+			wantResolveCount: 1,
+			wantImageRefs:    []string{"kyml/init"},
+			wantErr:          true,
 		},
 		{
-			name:          "resolve doesn't find image",
-			args:          args{strings.NewReader(testManifestDeployment)},
-			resolveOut:    nil,
-			resolveErr:    nil,
-			wantOut:       "",
-			wantImageRefs: []string{"kyml/init"},
-			wantErr:       true,
+			name:             "resolve doesn't find image",
+			args:             args{strings.NewReader(testManifestDeployment)},
+			resolveOut:       nil,
+			resolveErr:       nil,
+			wantOut:          "",
+			wantResolveCount: 1,
+			wantImageRefs:    []string{"kyml/init"},
+			wantErr:          true,
 		},
 		{
 			name: "image gets resolved",
@@ -198,18 +227,21 @@ func Test_resolveOptions_Run(t *testing.T) {
 				"kyml/init":  "kyml/init@sha256:2cbb95c7479634c53bc2be243554a98d6928c189360fa958d2c970974e7f131f",
 				"kyml/hello": "kyml/hello@sha256:2cbb95c7479634c53bc2be243554a98d6928c189360fa958d2c970974e7f131f",
 			},
-			resolveErr:    nil,
-			wantOut:       testManifestDeploymentResolved,
-			wantImageRefs: []string{"kyml/init", "kyml/hello"},
-			wantErr:       false,
+			resolveErr:       nil,
+			wantOut:          testManifestDeploymentResolved,
+			wantResolveCount: 2,
+			wantImageRefs:    []string{"kyml/init", "kyml/hello"},
+			wantErr:          false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &resolveOptions{}
 			out := &bytes.Buffer{}
+			gotResolveCount := 0
 			var gotImageRefs []string
 			resolveImageMock := func(imageRef string) (string, error) {
+				gotResolveCount++
 				gotImageRefs = append(gotImageRefs, imageRef)
 				if tt.resolveErr != nil {
 					return "", tt.resolveErr
@@ -220,6 +252,10 @@ func Test_resolveOptions_Run(t *testing.T) {
 
 			if err := o.Run(tt.args.in, out, resolveImageMock); (err != nil) != tt.wantErr {
 				t.Errorf("resolveOptions.Run() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotResolveCount, tt.wantResolveCount) {
+				t.Errorf("resolveOptions.Run() resolveCount = %v, wantResolveCount %v", gotResolveCount, tt.wantResolveCount)
 				return
 			}
 			if !reflect.DeepEqual(gotImageRefs, tt.wantImageRefs) {

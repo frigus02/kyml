@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Cache resolved images in `kyml resolve`. If your manifests include the same image reference multiple times, kyml will only ask the registry once.
+
 ### Fixed
 
 - Resource deduplication didn't correctly check for resource name. It does now.
