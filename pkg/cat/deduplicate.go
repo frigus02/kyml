@@ -13,7 +13,7 @@ func addOrReplaceExistingDocs(existingDocs, newDocs []*unstructured.Unstructured
 		for i, seenDoc := range existingDocs {
 			if k8syaml.GVKEquals(docGVK, seenDoc.GroupVersionKind()) &&
 				doc.GetNamespace() == seenDoc.GetNamespace() &&
-				doc.GetName() == doc.GetName() {
+				doc.GetName() == seenDoc.GetName() {
 				existingDocs[i] = doc
 				found = true
 				break
