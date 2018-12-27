@@ -57,13 +57,18 @@ func (o *resolveOptions) Run(in io.Reader, out io.Writer, resolveImage imageReso
 		return err
 	}
 
+	resolvedImageMap := make(map[string]string)
 	for _, doc := range documents {
 		if pathToPodSpec := getPathToPodSpec(doc.GroupVersionKind()); pathToPodSpec != nil {
-			if err := resolveImagesInContainers(doc.UnstructuredContent(), resolveImage, append(pathToPodSpec, "initContainers")...); err != nil {
+			obj := doc.UnstructuredContent()
+
+			pathToInitContainers := append(pathToPodSpec, "initContainers")
+			if err := resolveImagesInContainers(obj, resolveImage, resolvedImageMap, pathToInitContainers...); err != nil {
 				return err
 			}
 
-			if err := resolveImagesInContainers(doc.UnstructuredContent(), resolveImage, append(pathToPodSpec, "containers")...); err != nil {
+			pathToContainers := append(pathToPodSpec, "containers")
+			if err := resolveImagesInContainers(obj, resolveImage, resolvedImageMap, pathToContainers...); err != nil {
 				return err
 			}
 		}
@@ -78,7 +83,12 @@ func resolveImage(imageRef string) (string, error) {
 	return resolve.Resolve(imageRef)
 }
 
-func resolveImagesInContainers(obj map[string]interface{}, resolveImage imageResolver, fields ...string) error {
+func resolveImagesInContainers(
+	obj map[string]interface{},
+	resolveImage imageResolver,
+	resolvedImageMap map[string]string,
+	fields ...string,
+) error {
 	containers, found, err := unstructured.NestedSlice(obj, fields...)
 	if !found || err != nil {
 		return nil
@@ -95,13 +105,18 @@ func resolveImagesInContainers(obj map[string]interface{}, resolveImage imageRes
 			return nil
 		}
 
-		resolvedImage, err := resolveImage(image)
-		if err != nil {
-			return err
-		}
+		resolvedImage, ok := resolvedImageMap[image]
+		if !ok {
+			resolvedImage, err = resolveImage(image)
+			if err != nil {
+				return err
+			}
 
-		if resolvedImage == "" {
-			return fmt.Errorf("image %s not found", image)
+			if resolvedImage == "" {
+				return fmt.Errorf("image %s not found", image)
+			}
+
+			resolvedImageMap[image] = resolvedImage
 		}
 
 		container["image"] = resolvedImage
