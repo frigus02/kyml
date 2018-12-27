@@ -25,9 +25,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: the-deployment
+  name: deployment-a
 spec:
   replicas: 3
+  template:
+    spec:
+      containers:
+      - image: kyml/hello
+        name: the-container
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-b
+spec:
+  replicas: 1
   template:
     spec:
       containers:
@@ -37,9 +49,10 @@ spec:
 
 func mustCreateFs(t *testing.T) fs.Filesystem {
 	fsWithTestdata, err := fs.NewFakeFilesystemFromDisk(
-		"testdata/base/deployment.yml",
+		"testdata/base/deployment-a.yml",
+		"testdata/base/deployment-b.yml",
 		"testdata/base/service.yml",
-		"testdata/overlay-prod/deployment.yml",
+		"testdata/overlay-prod/deployment-a.yml",
 	)
 	if err != nil {
 		t.Fatalf("error reading testdata: %v", err)
@@ -51,9 +64,10 @@ func mustCreateFs(t *testing.T) fs.Filesystem {
 func mustCreateStream(t *testing.T) io.Reader {
 	var content []byte
 	files := []string{
-		"testdata/base/deployment.yml",
+		"testdata/base/deployment-a.yml",
+		"testdata/base/deployment-b.yml",
 		"testdata/base/service.yml",
-		"testdata/overlay-prod/deployment.yml",
+		"testdata/overlay-prod/deployment-a.yml",
 	}
 
 	for _, file := range files {
@@ -84,9 +98,10 @@ func TestCat(t *testing.T) {
 			name: "print deduplicated and sorted docs from files",
 			args: args{
 				files: []string{
-					"testdata/base/deployment.yml",
+					"testdata/base/deployment-a.yml",
+					"testdata/base/deployment-b.yml",
 					"testdata/base/service.yml",
-					"testdata/overlay-prod/deployment.yml",
+					"testdata/overlay-prod/deployment-a.yml",
 				},
 				fs: mustCreateFs(t),
 			},
