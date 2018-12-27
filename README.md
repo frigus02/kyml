@@ -33,7 +33,7 @@ Download a binary from the [release page](https://github.com/frigus02/kyml/relea
 Or download using curl on the command line:
 
 ```sh
-curl -sSL -o /usr/local/bin/kyml https://github.com/frigus02/kyml/releases/download/v20181226/kyml_20181226_linux_amd64
+curl -sSL -o /usr/local/bin/kyml https://github.com/frigus02/kyml/releases/download/v20181227/kyml_20181227_linux_amd64
 chmod +x /usr/local/bin/kyml
 ```
 

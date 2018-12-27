@@ -22,6 +22,10 @@ To release a new version of kyml, follow these steps:
 
 1. Commit and push the branch. Create a pull request for the branch. Then wait for the builds to succeed.
 
+   ```sh
+   git commit -m "Update changelog and readme for v$VERSION"
+   ```
+
 1. Tag the commit with `v$VERSION`.
 
    ```sh
