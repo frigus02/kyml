@@ -51,7 +51,7 @@ hello world!!
 `
 
 var unstructuredDocuments = []*unstructured.Unstructured{
-	&unstructured.Unstructured{
+	{
 		Object: map[string]interface{}{
 			"apiVersion": "v1",
 			"kind":       "Namespace",
@@ -60,7 +60,7 @@ var unstructuredDocuments = []*unstructured.Unstructured{
 			},
 		},
 	},
-	&unstructured.Unstructured{
+	{
 		Object: map[string]interface{}{
 			"apiVersion": "v1",
 			"kind":       "Service",
