@@ -9,8 +9,11 @@ cache:
 install:
   - go mod download
 script:
+  - ./scripts/checkformat.sh
+  - golint -set_exit_status ./...
+  - go vet ./...
   - go test ./...
-  - "./scripts/build.sh"
+  - ./scripts/build.sh
 deploy:
   provider: releases
   api_key:
