@@ -20,7 +20,7 @@ func NewRootCommand() *cobra.Command {
 
 	c := &cobra.Command{
 		Use:          "kyml",
-		Short:        "kyml helps you to manage your Kubernetes YAML files.",
+		Short:        "A CLI, which helps you to work with and deploy plain Kubernetes YAML files.",
 		SilenceUsage: true,
 		Version:      version,
 	}
