@@ -1,0 +1,15 @@
+run:
+  modules-download-mode: readonly
+linters:
+  disable-all: false
+  enable:
+    - deadcode
+    - errcheck
+    - gofmt
+    - golint
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - unused
+    - varcheck

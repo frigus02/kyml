@@ -7,12 +7,10 @@ cache:
   directories:
     - /home/travis/.cache/go-build # $GOCACHE
 install:
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.12.5
   - go mod download
 script:
-  - ./scripts/checkformat.sh
-  - golint -set_exit_status ./...
-  - go vet ./...
-  - go test ./...
+  - golangci-lint run
   - ./scripts/build.sh
 deploy:
   provider: releases
