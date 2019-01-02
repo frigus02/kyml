@@ -1,104 +1,78 @@
 # kyml - Kubernetes YAML
 
-A CLI, which helps you to manage your Kubernetes YAML files for your application.
+A CLI, which helps you to work with and deploy plain Kubernetes YAML files.
 
 ## Background
 
-There are many tool out there to manage Kubernetes manifests, e.g. [ksonnet](https://ksonnet.io/) or [kustomize](https://github.com/kubernetes-sigs/kustomize). They make manifests DRY by introducing other configuration files. I think at least for smaller applications that's too much and I wanted something simpler. So here is `kyml`.
+There are many great tools out there to manage Kubernetes manifests, e.g. [ksonnet](https://ksonnet.io/) or [kustomize](https://github.com/kubernetes-sigs/kustomize). They try to make working with manifests easier by deduplicating config. However they usually introduce other configuration files, which comes with complexity on its own. I wanted something simpler, especially for smaller applications.
 
-### Goals
+So here is `kyml`:
 
-- Easily readable and understandable YAML files.
-
-  This means everything is visible in the Kubernetes YAML files themselves. You don't have to jump between multiple files to see what's going on. There is no additional configuration file for yet another tool.
-
-- Stop accidental drift of files between environments.
-
-  In the beginning you decide how your environments (e.g. production and staging) should look like and how they differ. After that it should be hard to only update one environment (e.g. to add another env var) but forget to update the others.
-
-- Support for dynamic values like image tag or branch name.
-
-  Some values are dynamic. E.g. you may deploy every feature branch and want to include the branch name in a label or namespace. A tool has to support this.
-
-### Approach
-
-- Duplicate all files for each environment.
-- Lint diff between files with automated tests.
-- Simple templating for dynamic values.
+- Work with plain Kubernetes YAML files. No additional config files.
+- Duplicate files for each environment. But ensure updates always happen to all environments.
+- Support dynamic values with limited templating.
+- Save to run. Never touch original YAML files.
 
 ## Install
 
 Download a binary from the [release page](https://github.com/frigus02/kyml/releases).
 
-Or download using curl on the command line:
+This downloads the latest version for Linux:
 
 ```sh
-curl -sSL -o /usr/local/bin/kyml https://github.com/frigus02/kyml/releases/download/v20181227/kyml_20181227_linux_amd64
-chmod +x /usr/local/bin/kyml
+curl -sfL -o /usr/local/bin/kyml https://github.com/frigus02/kyml/releases/download/v20181227/kyml_20181227_linux_amd64 && chmod +x /usr/local/bin/kyml
 ```
 
 ## Usage
 
-```console
-$ kyml help
-kyml helps you to manage your Kubernetes YAML files.
+`kyml` provides commands for concatenating YAML files, testing and templating. Commands usually read manifests from stdin and print them to stdout. This allows you to build a pipeline of commands, which can end with a `kubectl apply` to do the deployment.
 
-Usage:
-  kyml [command]
+- [Structure your manifests in the way you want](#structure-your-manifests-in-the-way-you-want)
+- [`kyml cat` - concatenate YAML files](#kyml-cat---concatenate-yaml-files)
+- [`kyml test` - ensure updates always happen to all environments](#kyml-test---ensure-updates-always-happen-to-all-environments)
+- [`kyml tmpl` - inject dynamic values](#kyml-tmpl---inject-dynamic-values)
+- [`kyml resolve` - resolve Docker images to their digest](#kyml-resolve---resolve-docker-images-to-their-digest)
 
-Available Commands:
-  cat         Concatenate Kubernetes YAML files to stdout
-  completion  Generate completion scripts for your shell
-  help        Help about any command
-  resolve     Resolve image tags to their distribution digest
-  test        Run a snapshot test on the diff between Kubernetes YAML files of two environments
-  tmpl        Template Kubernetes YAML files
+Run `kyml --help` for details about the different commands.
 
-Flags:
-  -h, --help      help for kyml
-      --version   version for kyml
+### Structure your manifests in the way you want
 
-Use "kyml [command] --help" for more information about a command.
-```
-
-### 1. Structure your manifests in the way you want
-
-For most of the following examples, we assume this structure:
+For most of the examples in this readme we assume the following structure:
 
 ```
 manifests
-├── staging
-│   ├── deployment.yaml
-│   ├── ingress.yaml
-│   └── service.yaml
-└── production
-    ├── deployment.yaml
-    ├── ingress.yaml
-    └── service.yaml
+|- staging
+|  |- deployment.yaml
+|  |- ingress.yaml
+|  `- service.yaml
+`- production
+   |- deployment.yaml
+   |- ingress.yaml
+   `- service.yaml
 ```
 
-And some of them use this one:
+And some of them use this:
 
 ```
 manifests
-├── base
-│   ├── ingress.yaml
-│   └── service.yaml
-└── overlays
-    ├── staging
-    │   └── deployment.yaml
-    └── production
-        └── deployment.yaml
+|- base
+|  |- ingress.yaml
+|  `- service.yaml
+`- overlays
+   |- staging
+   |  `- deployment.yaml
+   `- production
+      `- deployment.yaml
 ```
 
 You can adapt these or use anything else, that makes sense for your application.
 
-### 2. Concatenate your files
+### `kyml cat` - concatenate YAML files
 
-In the simplest case you concatenate your files and pipe them into `kubectl apply` to deploy them. This does 2 things:
+Concatenate your files and pipe them into [`kubectl apply`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#apply) to deploy them. This does 2 things:
 
 - If multiple files contain the same Kubernetes resource, `kyml cat` deduplicates them. Only the one specified last makes it into the output.
-- Resources are sorted by dependencies. So even if you run `kyml cat deployment.yml namespace.yml` the namespace will appear first in the output. This way you don't have to prefix your filenames with numbers just to make sure your resources are created in the correct order.
+- Resources are sorted by dependencies. So even if you specify the namespace last (e.g. `kyml cat deployment.yaml namespace.yaml`) the namespace will appear first in the output. This makes sure your resources are created in the correct order.
 
 ```sh
 kyml cat manifests/production/* | kubectl apply -f -
@@ -108,9 +82,11 @@ kyml cat manifests/production/* | kubectl apply -f -
 kyml cat manifests/base/* manifests/overlays/production/* | kubectl apply -f -
 ```
 
-### 3. Test that your environment don't drift apart
+### `kyml test` - ensure updates always happen to all environments
 
-You can add a `kyml test` to this pipeline. This will create a diff between your environments. If this diff does not match your stored snapshot, the command fails and nothing gets deployed.
+Testing works by creating a diff between two environments and storing it in a snapshot file. The command compares the diff result to the snapshot and fails if it doesn't match.
+
+`kyml test` reads manifests of the main environment from stdin and files from the comparison environment are specified as arguments, similar to `kyml cat`. If the snapshot matches, it prints the main environment manifests to stdout. This way you can include a test in your deployment command pipeline to make sure nothing gets deployed if the test fails.
 
 ```sh
 kyml cat manifests/production/* |
@@ -121,9 +97,20 @@ kyml cat manifests/production/* |
     kubectl apply -f -
 ```
 
-### 4. Inject dynamic values
+### `kyml tmpl` - inject dynamic values
 
-Inject dynamic values using `kyml tmpl`, which supports the [go template](https://golang.org/pkg/text/template/) syntax. All values you provide on the command line will be replaced in the pipeline. For example to replace `{{.ImageTag}}` in your manifests, specify the flag `--value ImageTag=my-dynamic-tag`.
+Use templates (in the [go template](https://golang.org/pkg/text/template/) syntax) to inject dynamic values. To make sure values are escaped properly and this feature doesn't get misused you can only template string scalars. Example:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: the-namespace
+  labels:
+    branch: "{{.TRAVIS_BRANCH}}"
+```
+
+`kyml test` reads manifests from stdin and prints the result to stdout. Values are provided as command line options. Use `--value key=value` for literal strings and `--env ENV_VAR` for environment variables. These options can be repeated multiple times. The command fails if the manifests contain any template key, which is not specified on the command line.
 
 ```sh
 kyml cat manifests/production/* |
@@ -138,9 +125,9 @@ kyml cat manifests/production/* |
     kubectl apply -f -
 ```
 
-### 5. Resolve Docker images to their digest
+### `kyml resolve` - resolve Docker images to their digest
 
-If you tag the same image multiple times (e.g. because you build every commit, tagging images with the commit sha), you may want to resolve the tags to the image digest. This makes sure Kubernetes only restarts your applications if the image content changed.
+If you tag the same image multiple times (e.g. because you build every commit and tag images with the commit sha), you may want to resolve the tags to the image digest. This way Kubernetes only restarts your applications if the image content has changed.
 
 ```sh
 kyml cat manifests/production/* |
