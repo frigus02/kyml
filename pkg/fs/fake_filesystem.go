@@ -29,7 +29,9 @@ func NewFakeFilesystemFromDisk(files ...string) (Filesystem, error) {
 			return nil, err
 		}
 
-		fs.WriteFile(file, data, 0644)
+		if err = fs.WriteFile(file, data, 0644); err != nil {
+			return nil, err
+		}
 	}
 
 	return fs, nil

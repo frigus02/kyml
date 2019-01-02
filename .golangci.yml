@@ -13,3 +13,7 @@ linters:
     - structcheck
     - unused
     - varcheck
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    ignore: ""

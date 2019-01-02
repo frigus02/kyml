@@ -1,7 +1,6 @@
 package k8syaml
 
 import (
-	"fmt"
 	"io"
 	"strings"
 
@@ -39,8 +38,13 @@ func Encode(out io.Writer, documents []*unstructured.Unstructured) error {
 			return err
 		}
 
-		fmt.Fprintln(out, "---")
-		out.Write(bytes)
+		if _, err = out.Write([]byte("---\n")); err != nil {
+			return err
+		}
+
+		if _, err = out.Write(bytes); err != nil {
+			return err
+		}
 	}
 
 	return nil
