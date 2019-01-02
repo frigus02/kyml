@@ -102,7 +102,7 @@ func (o *testOptions) Run(in io.Reader, out io.Writer, fs fs.Filesystem) error {
 		}
 
 		if !o.updateSnapshot {
-			return fmt.Errorf("snapshot file does not exist")
+			return fmt.Errorf("snapshot file does not exist\nRun the command with --update to create it")
 		}
 	}
 
@@ -119,7 +119,7 @@ func (o *testOptions) Run(in io.Reader, out io.Writer, fs fs.Filesystem) error {
 				return err
 			}
 		} else {
-			return fmt.Errorf("snapshot diff does not match this diff\n%s", snapshotDiffStr)
+			return fmt.Errorf("snapshot diff does not match this diff\n\nRun the command with --update to update it\n\n%s", snapshotDiffStr)
 		}
 	}
 
