@@ -13,10 +13,10 @@ import (
 
 func mustCreateFs(t *testing.T) fs.Filesystem {
 	fsWithTestdata, err := fs.NewFakeFilesystemFromDisk(
-		"testdata/production/deployment.yml",
-		"testdata/production/service.yml",
-		"testdata/staging/deployment.yml",
-		"testdata/staging/service.yml",
+		"testdata/production/deployment.yaml",
+		"testdata/production/service.yaml",
+		"testdata/staging/deployment.yaml",
+		"testdata/staging/service.yaml",
 	)
 	if err != nil {
 		t.Fatalf("error reading testdata: %v", err)
@@ -119,12 +119,12 @@ func Test_testOptions_Run(t *testing.T) {
 			o: &testOptions{
 				nameMain:       "staging",
 				nameComparison: "production",
-				files:          []string{"testdata/production/dep.yml"},
+				files:          []string{"testdata/production/dep.yaml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
 			},
 			args: args{
-				in: mustCreateStream(t, "testdata/staging/deployment.yml"),
+				in: mustCreateStream(t, "testdata/staging/deployment.yaml"),
 				fs: mustCreateFs(t),
 			},
 			wantOut:      "",
@@ -136,12 +136,12 @@ func Test_testOptions_Run(t *testing.T) {
 			o: &testOptions{
 				nameMain:       "staging",
 				nameComparison: "production",
-				files:          []string{"testdata/production/deployment.yml"},
+				files:          []string{"testdata/production/deployment.yaml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
 			},
 			args: args{
-				in: mustCreateStream(t, "testdata/staging/deployment.yml"),
+				in: mustCreateStream(t, "testdata/staging/deployment.yaml"),
 				fs: mustCreateFs(t),
 			},
 			wantOut:      "",
@@ -153,12 +153,12 @@ func Test_testOptions_Run(t *testing.T) {
 			o: &testOptions{
 				nameMain:       "staging",
 				nameComparison: "production",
-				files:          []string{"testdata/production/deployment.yml", "testdata/production/service.yml"},
+				files:          []string{"testdata/production/deployment.yaml", "testdata/production/service.yaml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
 			},
 			args: args{
-				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
+				in: mustCreateStream(t, "testdata/staging/deployment.yaml", "testdata/staging/service.yaml"),
 				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 2\n"),
 			},
 			wantOut:          "",
@@ -171,12 +171,12 @@ func Test_testOptions_Run(t *testing.T) {
 			o: &testOptions{
 				nameMain:       "staging",
 				nameComparison: "production",
-				files:          []string{"testdata/production/deployment.yml", "testdata/production/service.yml"},
+				files:          []string{"testdata/production/deployment.yaml", "testdata/production/service.yaml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: true,
 			},
 			args: args{
-				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
+				in: mustCreateStream(t, "testdata/staging/deployment.yaml", "testdata/staging/service.yaml"),
 				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 2\n"),
 			},
 			wantOut:      "---\napiVersion: v1\nkind: Service\nmetadata:\n  name: the-service\nspec:\n  ports:\n  - port: 80\n    protocol: TCP\n  selector:\n    deployment: hello\n  type: LoadBalancer\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: the-deployment\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n      - image: kyml/hello\n        name: the-container\n",
@@ -188,12 +188,12 @@ func Test_testOptions_Run(t *testing.T) {
 			o: &testOptions{
 				nameMain:       "staging",
 				nameComparison: "production",
-				files:          []string{"testdata/production/deployment.yml", "testdata/production/service.yml"},
+				files:          []string{"testdata/production/deployment.yaml", "testdata/production/service.yaml"},
 				snapshotFile:   "kyml-snapshot.diff",
 				updateSnapshot: false,
 			},
 			args: args{
-				in: mustCreateStream(t, "testdata/staging/deployment.yml", "testdata/staging/service.yml"),
+				in: mustCreateStream(t, "testdata/staging/deployment.yaml", "testdata/staging/service.yaml"),
 				fs: mustCreateFsWithSnapshot(t, "--- staging\n+++ production\n@@ -19 +19 @@\n-  replicas: 1\n+  replicas: 3\n"),
 			},
 			wantOut:      "---\napiVersion: v1\nkind: Service\nmetadata:\n  name: the-service\nspec:\n  ports:\n  - port: 80\n    protocol: TCP\n  selector:\n    deployment: hello\n  type: LoadBalancer\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: the-deployment\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n      - image: kyml/hello\n        name: the-container\n",

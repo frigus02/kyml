@@ -35,7 +35,7 @@ The result of this command can be piped into other commands like "kyml test" or 
   kyml cat base/* overlay-production/*
 
   # Specify files individually
-  kyml cat prod/deployment.yml prod/service.yml prod/ingress.yml`,
+  kyml cat prod/deployment.yaml prod/service.yaml prod/ingress.yaml`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := o.Validate(args)
 			if err != nil {

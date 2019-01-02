@@ -49,10 +49,10 @@ spec:
 
 func mustCreateFs(t *testing.T) fs.Filesystem {
 	fsWithTestdata, err := fs.NewFakeFilesystemFromDisk(
-		"testdata/base/deployment-a.yml",
-		"testdata/base/deployment-b.yml",
-		"testdata/base/service.yml",
-		"testdata/overlay-prod/deployment-a.yml",
+		"testdata/base/deployment-a.yaml",
+		"testdata/base/deployment-b.yaml",
+		"testdata/base/service.yaml",
+		"testdata/overlay-prod/deployment-a.yaml",
 	)
 	if err != nil {
 		t.Fatalf("error reading testdata: %v", err)
@@ -64,10 +64,10 @@ func mustCreateFs(t *testing.T) fs.Filesystem {
 func mustCreateStream(t *testing.T) io.Reader {
 	var content []byte
 	files := []string{
-		"testdata/base/deployment-a.yml",
-		"testdata/base/deployment-b.yml",
-		"testdata/base/service.yml",
-		"testdata/overlay-prod/deployment-a.yml",
+		"testdata/base/deployment-a.yaml",
+		"testdata/base/deployment-b.yaml",
+		"testdata/base/service.yaml",
+		"testdata/overlay-prod/deployment-a.yaml",
 	}
 
 	for _, file := range files {
@@ -98,10 +98,10 @@ func TestCat(t *testing.T) {
 			name: "print deduplicated and sorted docs from files",
 			args: args{
 				files: []string{
-					"testdata/base/deployment-a.yml",
-					"testdata/base/deployment-b.yml",
-					"testdata/base/service.yml",
-					"testdata/overlay-prod/deployment-a.yml",
+					"testdata/base/deployment-a.yaml",
+					"testdata/base/deployment-b.yaml",
+					"testdata/base/service.yaml",
+					"testdata/overlay-prod/deployment-a.yaml",
 				},
 				fs: mustCreateFs(t),
 			},
@@ -112,7 +112,7 @@ func TestCat(t *testing.T) {
 			name: "file does not exist",
 			args: args{
 				files: []string{
-					"testdata/something.yml",
+					"testdata/something.yaml",
 				},
 				fs: mustCreateFs(t),
 			},
