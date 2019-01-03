@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [20190103]
+
+### Added
+
+- Added hint about `--update` option to error messages of `kyml test` command, which is shown when the snapshot file does not exist or the snapshot doesn't match.
+
 ## [20181227]
 
 ### Added
@@ -21,5 +27,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - First release.
 
-[unreleased]: https://github.com/frigus02/kyml/compare/v20181227...HEAD
+[unreleased]: https://github.com/frigus02/kyml/compare/v20190103...HEAD
+[20190103]: https://github.com/frigus02/kyml/compare/v20181227...v20190103
 [20181227]: https://github.com/frigus02/kyml/compare/v20181226...v20181227
