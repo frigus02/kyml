@@ -11,6 +11,7 @@ install:
   - go mod download
 script:
   - golangci-lint run
+  - go test ./...
   - ./scripts/build.sh
 deploy:
   provider: releases
