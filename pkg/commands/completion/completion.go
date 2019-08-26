@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/frigus02/cobra"
+	"github.com/spf13/cobra"
 )
 
 type completionOptions struct {

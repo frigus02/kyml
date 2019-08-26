@@ -6,7 +6,7 @@ From opening a bug report to creating a pull request: every contribution is appr
 
 1. Setup prerequisites on your machine. Currently the following are required:
 
-   - go v1.11.x
+   - go v1.12.x
 
 1. Fork, then clone the repository.
 

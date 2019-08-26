@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/frigus02/cobra"
 	"github.com/frigus02/kyml/pkg/cat"
 	"github.com/frigus02/kyml/pkg/k8syaml"
 	"github.com/frigus02/kyml/pkg/resolve"
+	"github.com/spf13/cobra"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/frigus02/cobra"
+	"github.com/spf13/cobra"
 )
 
 func Test_completionOptions_Validate(t *testing.T) {
@@ -90,7 +90,7 @@ func Test_completionOptions_Run(t *testing.T) {
 			name:             "zsh",
 			o:                &completionOptions{"zsh"},
 			args:             args{cmd},
-			wantOutToContain: "#compdef kyml",
+			wantOutToContain: "#compdef _kyml kyml",
 			wantErr:          false,
 		},
 		{

@@ -1,16 +1,17 @@
 dist: xenial
 language: go
-go: "1.11.x"
+go: "1.12.x"
 env:
   - GO111MODULE=on
 cache:
   directories:
     - /home/travis/.cache/go-build # $GOCACHE
 install:
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.12.5
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.17.1
   - go mod download
 script:
   - golangci-lint run
+  - go test ./...
   - ./scripts/build.sh
 deploy:
   provider: releases
