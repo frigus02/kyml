@@ -1,7 +1,7 @@
 run:
   modules-download-mode: readonly
 linters:
-  disable-all: false
+  disable-all: true
   enable:
     - deadcode
     - errcheck
@@ -11,6 +11,7 @@ linters:
     - ineffassign
     - staticcheck
     - structcheck
+    - typecheck
     - unused
     - varcheck
 linters-settings:
