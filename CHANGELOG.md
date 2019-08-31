@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [20190831]
+
+### Added
+
+- Improved zsh completions.
+
 ## [20190103]
 
 ### Added
@@ -27,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - First release.
 
-[unreleased]: https://github.com/frigus02/kyml/compare/v20190103...HEAD
+[unreleased]: https://github.com/frigus02/kyml/compare/v20190831...HEAD
+[20190831]: https://github.com/frigus02/kyml/compare/v20190103...v20190831
 [20190103]: https://github.com/frigus02/kyml/compare/v20181227...v20190103
 [20181227]: https://github.com/frigus02/kyml/compare/v20181226...v20181227
