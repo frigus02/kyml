@@ -7,3 +7,5 @@ require (
 	k8s.io/apimachinery v0.0.0-20190831074630-461753078381
 	sigs.k8s.io/yaml v1.1.0
 )
+
+go 1.13
