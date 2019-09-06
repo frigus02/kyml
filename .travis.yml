@@ -1,6 +1,8 @@
 dist: xenial
 language: go
 go: "1.13.x"
+notifications:
+  email: false
 cache:
   directories:
     - /home/travis/.cache/go-build # $GOCACHE
