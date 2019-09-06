@@ -20,7 +20,7 @@ Download a binary from the [release page](https://github.com/frigus02/kyml/relea
 This downloads the latest version for Linux:
 
 ```sh
-curl -sfL -o /usr/local/bin/kyml https://github.com/frigus02/kyml/releases/download/v20190831/kyml_20190831_linux_amd64 && chmod +x /usr/local/bin/kyml
+curl -sfL -o /usr/local/bin/kyml https://github.com/frigus02/kyml/releases/download/v20190906/kyml_20190906_linux_amd64 && chmod +x /usr/local/bin/kyml
 ```
 
 ## Usage
