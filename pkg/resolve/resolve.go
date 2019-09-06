@@ -2,6 +2,7 @@ package resolve
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -32,8 +33,9 @@ func execCmd(name string, arg ...string) ([]byte, error) {
 func resolveWithDockerInspect(imageRef string, execCmd commandExecutor) (string, error) {
 	out, err := execCmd("docker", "inspect", "--format", "{{json .RepoDigests}}", imageRef)
 	if err != nil {
-		if err, ok := err.(*exec.ExitError); ok {
-			stderr := string(err.Stderr)
+		var eerr *exec.ExitError
+		if errors.As(err, &eerr) {
+			stderr := string(eerr.Stderr)
 			if strings.Contains(stderr, "No such object:") {
 				return "", nil
 			}
@@ -62,10 +64,19 @@ func resolveWithDockerInspect(imageRef string, execCmd commandExecutor) (string,
 func resolveWithDockerManifestInspect(imageRef string, execCmd commandExecutor) (string, error) {
 	out, err := execCmd("docker", "manifest", "inspect", "--verbose", imageRef)
 	if err != nil {
-		if err, ok := err.(*exec.ExitError); ok {
-			stderr := string(err.Stderr)
+		var eerr *exec.ExitError
+		if errors.As(err, &eerr) {
+			stderr := string(eerr.Stderr)
 			if strings.Contains(stderr, "no such manifest:") {
 				return "", nil
+			}
+
+			if strings.Contains(stderr, "docker manifest inspect is only supported on a Docker cli with experimental cli features enabled") {
+				return "", errors.New("Experimental Docker CLI features required.\n\nIf an image " +
+					"doesn't exist locally, kyml resolve relies on the `docker manifest inspect` " +
+					"command to resolve it. This is still experimental. You need to enable " +
+					"experimental features in Docker to make it work. For more information and " +
+					"how to enable experimental features see: https://docs.docker.com/engine/reference/commandline/manifest_inspect/")
 			}
 
 			return "", fmt.Errorf("docker manifest inspect: %v (stderr: %s)", err, stderr)
