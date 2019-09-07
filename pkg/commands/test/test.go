@@ -63,6 +63,17 @@ The command compares the diff between these environments to a previous diff stor
 	cmd.Flags().StringVarP(&o.snapshotFile, "snapshot-file", "s", "kyml-snapshot.diff", "Snapshot file")
 	cmd.Flags().BoolVarP(&o.updateSnapshot, "update", "u", false, "If specified, update snapshot file and exit successfully in case of non-match")
 
+	_ = cmd.MarkFlagFilename("snapshot-file")
+
+	// Test supports infinite positional file arguments, however zsh completions
+	// require each positional argument to be marked individually. We just mark
+	// the first few.
+	_ = cmd.MarkZshCompPositionalArgumentFile(1)
+	_ = cmd.MarkZshCompPositionalArgumentFile(2)
+	_ = cmd.MarkZshCompPositionalArgumentFile(3)
+	_ = cmd.MarkZshCompPositionalArgumentFile(4)
+	_ = cmd.MarkZshCompPositionalArgumentFile(5)
+
 	return cmd
 }
 

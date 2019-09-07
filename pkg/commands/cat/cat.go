@@ -46,6 +46,15 @@ The result of this command can be piped into other commands like "kyml test" or 
 		},
 	}
 
+	// Cat supports infinite positional file arguments, however zsh completions
+	// require each positional argument to be marked individually. We just mark
+	// the first few.
+	_ = cmd.MarkZshCompPositionalArgumentFile(1)
+	_ = cmd.MarkZshCompPositionalArgumentFile(2)
+	_ = cmd.MarkZshCompPositionalArgumentFile(3)
+	_ = cmd.MarkZshCompPositionalArgumentFile(4)
+	_ = cmd.MarkZshCompPositionalArgumentFile(5)
+
 	return cmd
 }
 
