@@ -15,7 +15,7 @@ type completionOptions struct {
 func NewCmdCompletion(out io.Writer, rootCommand *cobra.Command) *cobra.Command {
 	var o completionOptions
 
-	var command = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "completion <shell>",
 		Short: "Generate completion scripts for your shell",
 		Long: `Write bash, powershell or zsh shell completion code for kyml to stdout.
@@ -33,9 +33,10 @@ zsh: Output to a file in a directory referenced by the $fpath shell variable.`,
 
 			return o.Run(out, rootCommand)
 		},
+		ValidArgs: []string{"bash", "powershell", "zsh"},
 	}
 
-	return command
+	return cmd
 }
 
 // Validate validates completion command.
