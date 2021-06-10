@@ -19,6 +19,7 @@ ldflags="-X github.com/frigus02/kyml/pkg/commands.version=$version"
 
 echo "Build darwin"
 GOARCH=amd64 GOOS=darwin go build -o "bin/kyml_${version}_darwin_amd64" -ldflags "$ldflags"
+GOARCH=arm64 GOOS=darwin go build -o "bin/kyml_${version}_darwin_arm64" -ldflags "$ldflags"
 
 echo "Build linux"
 GOARCH=amd64 GOOS=linux go build -o "bin/kyml_${version}_linux_amd64" -ldflags "$ldflags"
