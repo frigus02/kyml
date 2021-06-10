@@ -6,9 +6,9 @@ linters:
     - deadcode
     - errcheck
     - gofmt
-    - golint
     - govet
     - ineffassign
+    - revive
     - staticcheck
     - structcheck
     - typecheck
