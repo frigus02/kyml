@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [20210610]
+
+### Added
+
+- Added version for Apple Silicon aka darwin/arm64 (thanks [@genebean](https://github.com/genebean)).
+
 ## [20190906]
 
 ### Changed
@@ -39,7 +45,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - First release.
 
-[unreleased]: https://github.com/frigus02/kyml/compare/v20190906...HEAD
+[unreleased]: https://github.com/frigus02/kyml/compare/v20210610...HEAD
+[20210610]: https://github.com/frigus02/kyml/compare/v20190906...v20210610
 [20190906]: https://github.com/frigus02/kyml/compare/v20190831...v20190906
 [20190831]: https://github.com/frigus02/kyml/compare/v20190103...v20190831
 [20190103]: https://github.com/frigus02/kyml/compare/v20181227...v20190103
