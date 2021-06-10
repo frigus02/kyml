@@ -2,13 +2,10 @@
 
 set -eo pipefail
 
-if [ "$TRAVIS" = "true" ]; then
-	if [ "$TRAVIS_TAG" != "" ]; then
-		if [[ $TRAVIS_TAG != v* ]]; then
-			echo >&2 "TRAVIS_TAG is set but does not start with \"v\""
-			exit 1
-		fi
-		version="${TRAVIS_TAG:1}"
+if [ "$GITHUB_ACTIONS" = "true" ]; then
+	if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+		version="${GITHUB_REF:11}"
+		echo "KYML_RELEASE_VERSION=$version" >>$GITHUB_ENV
 	else
 		version="untagged"
 	fi
