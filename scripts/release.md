@@ -39,3 +39,5 @@ To release a new version of kyml, follow these steps:
    ```
 
 1. Merge the pull request.
+
+1. Update version and checksums in Homebrew formula [frigus02/tap/kyml](https://github.com/frigus02/homebrew-tap/blob/main/kyml.rb).

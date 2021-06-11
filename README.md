@@ -15,6 +15,14 @@ So here is `kyml`:
 
 ## Install
 
+### macOS
+
+```sh
+brew install frigus02/tap/kyml
+```
+
+### Linux & Windows
+
 Download a binary from the [release page](https://github.com/frigus02/kyml/releases).
 
 This downloads the latest version for Linux:
