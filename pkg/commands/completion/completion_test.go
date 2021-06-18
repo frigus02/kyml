@@ -83,7 +83,7 @@ func Test_completionOptions_Run(t *testing.T) {
 			name:             "powershell",
 			o:                &completionOptions{"powershell"},
 			args:             args{cmd},
-			wantOutToContain: "Register-ArgumentCompleter -Native -CommandName 'kyml'",
+			wantOutToContain: "Register-ArgumentCompleter -CommandName 'kyml'",
 			wantErr:          false,
 		},
 		{
